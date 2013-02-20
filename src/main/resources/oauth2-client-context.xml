@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * Spring context to define the Service and Controller beans.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"
+        default-init-method="init">
+
+    <import resource="classpath:/oauth2-client-dao.xml"/>
+        
+    <bean id="connectionService" class="com.wadpam.oauth2.service.ConnectionService">
+        <property name="dConnectionDao" ref="dConnectionDao" />
+    </bean>
+    
+    <bean id="factoryService" class="com.wadpam.oauth2.service.FactoryService">
+        <property name="dFactoryDao" ref="dFactoryDao" />
+    </bean>
+    
+    <bean id="oauth2Service" class="com.wadpam.oauth2.service.OAuth2Service">
+        <property name="dConnectionDao" ref="dConnectionDao" />
+        <property name="factoryService" ref="factoryService" />
+        <property name="oauth2UserService" ref="oauth2UserService" />
+    </bean>
+    
+    <bean id="connectionController" class="com.wadpam.oauth2.web.ConnectionController">
+        <property name="connectionService" ref="connectionService" />
+    </bean>
+    
+    <bean id="factoryController" class="com.wadpam.oauth2.web.FactoryController">
+        <property name="factoryService" ref="factoryService" />
+    </bean>
+    
+    <bean id="oauth2Controller" class="com.wadpam.oauth2.web.OAuth2Controller">
+        <property name="service" ref="oauth2Service" />
+    </bean>
+</beans>

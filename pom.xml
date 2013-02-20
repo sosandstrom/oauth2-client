@@ -1,0 +1,444 @@
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.wadpam.oauth</groupId>
+    <artifactId>oauth2-client</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>OAuth2-client</name>
+
+    <!-- Specify hard-coded project properties here -->
+    <properties>
+        <gae.version>1.7.0</gae.version>
+        <gae.application.version>lab</gae.application.version>
+        <gae.application.id>pocket-survey</gae.application.id>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring.version>3.1.1.RELEASE</spring.version>
+        <spring.security.version>3.1.2.RELEASE</spring.security.version>
+        <org.springframework.social.version>1.0.1.RELEASE</org.springframework.social.version>
+        <downloadSources>true</downloadSources>
+        <netbeans.hint.deploy.server>Tomcat</netbeans.hint.deploy.server>
+        <java.version>1.6</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <itest.include>**/*ITest.java</itest.include>
+        <surefire.default.skip>true</surefire.default.skip>
+        <mardao.version>2.1.8</mardao.version>
+        <openserver.version>14</openserver.version>
+        <javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
+        <docrest.version>1.19</docrest.version>
+        <logging.level>ALL</logging.level>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>net.sf.mardao</groupId>
+            <artifactId>mardao-core</artifactId>
+            <version>${mardao.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.mardao</groupId>
+            <artifactId>mardao-gae</artifactId>
+            <version>${mardao.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.wadpam.openserver</groupId>
+            <artifactId>errors</artifactId>
+            <version>${openserver.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.wadpam.openserver</groupId>
+            <artifactId>json</artifactId>
+            <version>${openserver.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.wadpam.openserver</groupId>
+            <artifactId>mvc-boiler</artifactId>
+            <version>${openserver.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.appengine</groupId>
+            <artifactId>appengine-api-1.0-sdk</artifactId>
+            <version>${gae.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.springframework.social</groupId>
+            <artifactId>spring-social-core</artifactId>
+            <version>${org.springframework.social.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.social</groupId>
+            <artifactId>spring-social-facebook</artifactId>
+            <version>${org.springframework.social.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.social</groupId>
+            <artifactId>spring-social-google</artifactId>
+            <version>0.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.social</groupId>
+            <artifactId>spring-social-twitter</artifactId>
+            <version>${org.springframework.social.version}</version>
+        </dependency>
+<!--        <dependency>
+            <groupId>com.goldengekko.social</groupId>
+            <artifactId>spring-social-gekko</artifactId>
+            <version>1.5</version>
+        </dependency>-->
+        
+        
+        <dependency>
+            <groupId>com.wadpam</groupId>
+            <artifactId>docrest-api</artifactId>
+            <version>${docrest.version}</version>
+        </dependency>
+        
+        <!-- These dependencies are here just for enabling logging -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.6.1</version>
+        </dependency>
+
+        <!-- this is for Jetty and ITests -->
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.appengine</groupId>
+            <artifactId>appengine-testing</artifactId>
+            <version>${gae.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.appengine</groupId>
+            <artifactId>appengine-api-labs</artifactId>
+            <version>${gae.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.appengine</groupId>
+            <artifactId>appengine-api-stubs</artifactId>
+            <version>${gae.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <version>1.6.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymock</artifactId>
+            <version>2.5.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymockclassextension</artifactId>
+            <version>2.5.2</version>
+            <scope>test</scope>
+        </dependency>
+		
+    </dependencies>
+
+    <build>
+        <resources>
+            <!-- base set of resources -->
+            <resource>
+                <directory>${project.basedir}/src/main/resources</directory>
+            </resource>
+
+            <!-- filter some files -->
+            <resource>
+                <directory>${project.basedir}/src/main/filtered</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+                <executions>
+                    <!-- extra compile step of domain classes before mardao generator processing -->
+                    <execution>
+                        <id>compile-entities</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <verbose>false</verbose>
+                            <fork>true</fork>
+                            <includes>
+                                <include>**/domain/*.java</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>net.sf.mardao</groupId>
+                <artifactId>mardao-maven-plugin</artifactId>
+                <version>${mardao.version}</version>
+                <executions>
+                    <execution>
+                        <id>generate-generics</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate-sources</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>generate-daos</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>process-classes</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <basePackage>com.wadpam.oauth2</basePackage>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>
+                                    ${project.basedir}/target/generated-sources/dao
+                                </source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <target>
+                                <copy file="src/main/resources/spring-dao.xml" tofile="target/classes/oauth2-client-dao.xml" overwrite="true" />
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <forkMode>pertest</forkMode>
+                    <argLine>-Xms256m -Xmx512m</argLine>
+                    <testFailureIgnore>false</testFailureIgnore>
+                    <skip>${surefire.default.skip}</skip>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>surefire-test</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <skip>false</skip>
+                            <excludes>
+                                <exclude>**/*ITest.java</exclude>
+                            </excludes>
+                            <systemPropertyVariables>
+                                <catalina.home>${project.basedir}/target/test</catalina.home>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </execution>
+
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-eclipse-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <wtpversion>2.0</wtpversion>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>sosandstrom-github-releases</id>
+            <name>sosandstrom Maven releases repo at GitHub</name>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <url>https://raw.github.com/sosandstrom/maven-repo/master/releases</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>sosandstrom-github-snapshots</id>
+            <name>sosandstrom Maven snapshots repo at GitHub</name>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <url>https://raw.github.com/sosandstrom/maven-repo/master/snapshots</url>
+        </pluginRepository>
+    </pluginRepositories>
+            
+    <repositories>
+        <repository>
+            <id>sosandstrom-github-releases</id>
+            <name>sosandstrom Maven releases repo at GitHub</name>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <url>https://raw.github.com/sosandstrom/maven-repo/master/releases</url>
+        </repository>
+        <repository>
+            <id>sosandstrom-github-snapshots</id>
+            <name>sosandstrom Maven snapshots repo at GitHub</name>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <url>https://raw.github.com/sosandstrom/maven-repo/master/snapshots</url>
+        </repository>
+    </repositories>
+
+    <developers>
+        <developer>
+            <id>sosandstrom</id>
+            <name>Ola Sandstrom</name>
+            <email>s.o.sandstrom@gmail.com</email>
+            <url>http://www.linkedin.com/in/sosandstrom</url>
+        </developer>
+    </developers>
+
+    <scm>
+        <url>https://github.com/sosandstrom/pocket-survey</url>
+        <developerConnection>scm:git:ssh://git@github.com/sosandstrom/pocket-survey.git</developerConnection>
+    </scm>
+
+    <profiles>
+        <profile>
+            <id>archive</id>
+            <properties>
+                <endpoint.apiUrl>http://pocket-survey.appspot.com/api/apidocs/</endpoint.apiUrl>
+                <swagger.basePath>http://archive.goldengekko.com/archive/pocket-survey/apidocs/</swagger.basePath>
+            </properties>
+        </profile>
+        <profile>
+            <id>javadoc</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.8</version>
+                        <executions>
+                            <execution>
+                                <id>javadoc-docrest</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>javadoc</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <additionalparam>-basePath ${swagger.basePath} -baseUrl ${endpoint.apiUrl}</additionalparam>
+                            <author>false</author>
+                            <doclet>com.wadpam.docrest.DocRestDoclet</doclet>
+                            <docletArtifact>
+                                <groupId>com.wadpam</groupId>
+                                <artifactId>docrest-doclet</artifactId>
+                                <version>${docrest.version}</version>
+                            </docletArtifact>
+                            <encoding>UTF-8</encoding>
+                            <javadocExecutable>${javadocExecutable}</javadocExecutable>
+                            <reportOutputDirectory>${project.basedir}/src/main/webapp/static</reportOutputDirectory>
+                            <sourcepath>src/main/java</sourcepath>
+                            <useStandardDocletOptions>false</useStandardDocletOptions>
+                            <verbose>true</verbose>
+                        </configuration>
+                    </plugin>
+                    
+                </plugins>
+            </build>
+        </profile>
+       
+    </profiles>
+
+</project>
