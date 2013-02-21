@@ -8,9 +8,11 @@ import com.wadpam.oauth2.service.OAuth2Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  *
@@ -36,6 +38,18 @@ public class OAuth2Controller {
                 secret, expires_in);
         
         return res;
+    }
+
+    @RequestMapping(value="federated/v11/{providerId}/{providerUserId}", method={RequestMethod.DELETE})
+    @ResponseBody
+    public String unregisterFederated(
+            @PathVariable String providerId,
+            @PathVariable String providerUserId) {
+        
+        String userId = service.unregisterFederated(
+                providerId, providerUserId);
+        
+        return userId;
     }
 
     @Autowired

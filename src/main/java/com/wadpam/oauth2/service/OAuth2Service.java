@@ -7,6 +7,7 @@ package com.wadpam.oauth2.service;
 import com.wadpam.oauth2.dao.DConnectionDao;
 import com.wadpam.oauth2.domain.DConnection;
 import com.wadpam.oauth2.domain.DFactory;
+import com.wadpam.open.exceptions.AuthenticationFailedException;
 import com.wadpam.open.exceptions.NotFoundException;
 import java.util.Date;
 import java.util.Set;
@@ -15,12 +16,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.social.NotAuthorizedException;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionData;
 import org.springframework.social.connect.ConnectionFactory;
 import org.springframework.social.connect.ConnectionFactoryLocator;
 import org.springframework.social.connect.UserProfile;
 import org.springframework.social.connect.support.ConnectionFactoryRegistry;
+import org.springframework.social.facebook.api.FacebookProfile;
+import org.springframework.social.facebook.api.UserOperations;
+import org.springframework.social.facebook.api.impl.FacebookTemplate;
 import org.springframework.social.facebook.connect.FacebookConnectionFactory;
 import org.springframework.social.google.connect.GoogleConnectionFactory;
 import org.springframework.social.twitter.connect.TwitterConnectionFactory;
@@ -69,7 +74,13 @@ public class OAuth2Service implements ConnectionFactoryLocator {
 
         UserProfile profile = null;
         try {
+            boolean valid = verifyConnection(connection);
+            if (!valid) {
+                throw new AuthenticationFailedException(503403, "Unauthorized federated side");
+            }
+            
             profile = connection.fetchUserProfile();
+            
             // it provderId from twitter skip it,
             // WARNING: Authentication error: Unable to respond to any of these challenges: {oauth=WWW-Authenticate: OAuth
             // realm="https://api.twitter.com"}
@@ -77,6 +88,8 @@ public class OAuth2Service implements ConnectionFactoryLocator {
             if (null == profile) {
                 throw new IllegalArgumentException("Invalid connection");
             }
+        } catch (NotAuthorizedException unauthorized) {
+            throw new AuthenticationFailedException(503401, "Unauthorized federated side");
         } catch (HttpClientErrorException deletedOnServerSide) {
             throw new NotFoundException(503404, "User deleted federated side");
         }
@@ -209,6 +222,29 @@ public class OAuth2Service implements ConnectionFactoryLocator {
     @Override
     public Set<String> registeredProviderIds() {
         return getRegistry().registeredProviderIds();
+    }
+    
+    public String unregisterFederated(String providerId, String providerUserId) {
+        DConnection conn = dConnectionDao.findByProviderIdProviderUserId(providerId, providerUserId);
+        if (null == conn) {
+            throw new NotFoundException(500404, "Not Connected");
+        }
+        
+        conn.setAccessToken(null);
+        conn.setRefreshToken(null);
+        dConnectionDao.update(conn);
+        return conn.getUserId();
+    }
+
+    protected boolean verifyConnection(Connection connection) {
+        ConnectionData data = connection.createData();
+        if (PROVIDER_ID_FACEBOOK.equals(data.getProviderId())) {
+            FacebookTemplate template = new FacebookTemplate(data.getAccessToken());
+            UserOperations userOps = template.userOperations();
+            FacebookProfile profile = userOps.getUserProfile();
+            return data.getProviderUserId().equals(profile.getId());
+        }
+        return false;
     }
 
     public void setFactoryService(FactoryService factoryService) {
