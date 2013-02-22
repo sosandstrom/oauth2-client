@@ -24,7 +24,7 @@
         <itest.include>**/*ITest.java</itest.include>
         <surefire.default.skip>true</surefire.default.skip>
         <mardao.version>2.1.8</mardao.version>
-        <openserver.version>14</openserver.version>
+        <openserver.version>15-SNAPSHOT</openserver.version>
         <javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
         <docrest.version>1.19</docrest.version>
         <logging.level>ALL</logging.level>
@@ -43,6 +43,11 @@
             <scope>provided</scope>
         </dependency>
         
+        <dependency>
+            <groupId>com.wadpam.openserver</groupId>
+            <artifactId>domain</artifactId>
+            <version>${openserver.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.wadpam.openserver</groupId>
             <artifactId>errors</artifactId>

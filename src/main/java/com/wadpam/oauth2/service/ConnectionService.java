@@ -19,4 +19,8 @@ public class ConnectionService extends MardaoCrudService<DConnection, Long, DCon
     public void setDConnectionDao(DConnectionDao dConnectionDao) {
         this.dao = dConnectionDao;
     }
+
+    public DConnection getByAccessToken(String accessToken) {
+        return dao.findByAccessToken(accessToken);
+    }
 }

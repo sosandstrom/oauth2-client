@@ -235,16 +235,21 @@ public class OAuth2Service implements ConnectionFactoryLocator {
         dConnectionDao.update(conn);
         return conn.getUserId();
     }
+    
+    public static String getProviderUserId(String access_token, String providerId) {
+        if (PROVIDER_ID_FACEBOOK.equals(providerId)) {
+            FacebookTemplate template = new FacebookTemplate(access_token);
+            UserOperations userOps = template.userOperations();
+            FacebookProfile profile = userOps.getUserProfile();
+            return profile.getId();
+        }
+        throw new IllegalArgumentException("No registered provider " + providerId);
+    }
 
     protected boolean verifyConnection(Connection connection) {
         ConnectionData data = connection.createData();
-        if (PROVIDER_ID_FACEBOOK.equals(data.getProviderId())) {
-            FacebookTemplate template = new FacebookTemplate(data.getAccessToken());
-            UserOperations userOps = template.userOperations();
-            FacebookProfile profile = userOps.getUserProfile();
-            return data.getProviderUserId().equals(profile.getId());
-        }
-        return false;
+        String userId = getProviderUserId(data.getAccessToken(), data.getProviderId());
+        return data.getProviderUserId().equals(userId);
     }
 
     public void setFactoryService(FactoryService factoryService) {
