@@ -7,6 +7,8 @@ package com.wadpam.oauth2.service;
 import com.wadpam.oauth2.dao.DConnectionDao;
 import com.wadpam.oauth2.domain.DConnection;
 import com.wadpam.oauth2.domain.DFactory;
+import com.wadpam.oauth2.itest.ITestApiAdapter;
+import com.wadpam.oauth2.itest.IntegrationTestConnectionFactory;
 import com.wadpam.open.exceptions.AuthenticationFailedException;
 import com.wadpam.open.exceptions.NotFoundException;
 import java.util.Date;
@@ -37,6 +39,7 @@ import org.springframework.web.client.HttpClientErrorException;
  */
 public class OAuth2Service implements ConnectionFactoryLocator {
     
+    public static final String PROVIDER_ID_ITEST = "itest";
     public static final String PROVIDER_ID_FACEBOOK = "facebook";
 //    public static final String PROVIDER_ID_GEKKO = "gekko";
     public static final String PROVIDER_ID_GOOGLE = "google";
@@ -63,11 +66,13 @@ public class OAuth2Service implements ConnectionFactoryLocator {
      * @param expires_in
      * @return the userId associated with the Connection, null if new Connection
      */
-    public ResponseEntity<String> registerFederated(String access_token, 
+    public ResponseEntity<String> registerFederated(
+            String access_token, 
             String providerId,
             String providerUserId,
             String secret,
-            Integer expiresInSeconds) {
+            Integer expiresInSeconds,
+            String appArg0) {
         
         // use the connectionFactory
         final Connection<?> connection = createConnection(access_token, secret, providerId, providerUserId);
@@ -123,6 +128,7 @@ public class OAuth2Service implements ConnectionFactoryLocator {
         if (null != expiresInSeconds) {
             conn.setExpireTime(new Date(System.currentTimeMillis() + expiresInSeconds*1000L));
         }
+        conn.setAppArg0(appArg0);
         dConnectionDao.update(conn);
         
         
@@ -187,6 +193,9 @@ public class OAuth2Service implements ConnectionFactoryLocator {
             // factory.getClientSecret());
             cf = new TwitterConnectionFactory(factory.getClientId(), factory.getClientSecret());
         }
+        else if (PROVIDER_ID_ITEST.equals(factory.getId())) {
+            cf = new IntegrationTestConnectionFactory();
+        }
         return cf;
     }
 
@@ -242,6 +251,9 @@ public class OAuth2Service implements ConnectionFactoryLocator {
             UserOperations userOps = template.userOperations();
             FacebookProfile profile = userOps.getUserProfile();
             return profile.getId();
+        }
+        else if (PROVIDER_ID_ITEST.equals(providerId)) {
+            return ITestApiAdapter.ITEST_PROVIDER_USER_ID;
         }
         throw new IllegalArgumentException("No registered provider " + providerId);
     }

@@ -30,12 +30,13 @@ public class OAuth2Controller {
             @RequestParam String providerId,
             @RequestParam String providerUserId,
             @RequestParam(required=false) String secret,
-            @RequestParam(required=false) Integer expires_in
+            @RequestParam(required=false) Integer expires_in,
+            @RequestParam(required=false) String appArg0
             ) {
         
         ResponseEntity<String> res = service.registerFederated(access_token, 
                 providerId, providerUserId, 
-                secret, expires_in);
+                secret, expires_in, appArg0);
         
         return res;
     }

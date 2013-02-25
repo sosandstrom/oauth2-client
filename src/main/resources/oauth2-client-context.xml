@@ -4,7 +4,8 @@
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"
+        xmlns:beans="http://www.springframework.org/schema/beans"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"
         default-init-method="init">
 
     <import resource="classpath:/oauth2-client-dao.xml"/>
@@ -34,4 +35,13 @@
     <bean id="oauth2Controller" class="com.wadpam.oauth2.web.OAuth2Controller">
         <property name="service" ref="oauth2Service" />
     </bean>
+    
+    <beans profile="itest">
+        
+        <!-- to create an itest connection factory in the factory service -->
+        <bean id="itestFactoryFactory" class="com.wadpam.oauth2.itest.IntegrationTestConnectionFactory"
+            init-method="init">
+            <property name="factoryService" ref="factoryService" />
+        </bean>
+    </beans>
 </beans>

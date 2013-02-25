@@ -20,6 +20,12 @@ public class DConnection extends AbstractLongEntity {
     @Basic
     private String accessToken;
     
+    /** Specify for each provider what this property contains.
+     * For Salesforce, it is instance_url
+     */
+    @Basic
+    private String appArg0;
+    
     @Basic
     private String displayName;
     
@@ -53,6 +59,14 @@ public class DConnection extends AbstractLongEntity {
 
     public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
+    }
+
+    public String getAppArg0() {
+        return appArg0;
+    }
+
+    public void setAppArg0(String appArg0) {
+        this.appArg0 = appArg0;
     }
 
     public String getDisplayName() {
