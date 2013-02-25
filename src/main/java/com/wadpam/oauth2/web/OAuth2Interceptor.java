@@ -29,6 +29,9 @@ public class OAuth2Interceptor extends DomainInterceptor {
     
     private ConnectionService connectionService;
 
+    /**
+     * @return the authenticated username
+     */
     @Override
     protected String doAuthenticate(HttpServletRequest request, HttpServletResponse response) {
         String accessToken = null;
@@ -43,11 +46,13 @@ public class OAuth2Interceptor extends DomainInterceptor {
         if (null == accessToken) {
             accessToken = request.getParameter(NAME_ACCESS_TOKEN);
         }
+        LOG.debug("authenticating Authorization: {}, access_token={}", authorization, accessToken);
         
         return verifyAccessToken(accessToken);
     }
 
     protected String verifyAccessToken(String accessToken) {
+
         // missing means Unauthorized
         if (null != accessToken) {
             
@@ -84,10 +89,11 @@ public class OAuth2Interceptor extends DomainInterceptor {
                 }
                 
                 // double-check userId
-                if (providerUserId.equals(conn.getProviderUserId())) {
-                    return conn.getUserId();
+                if (!providerUserId.equals(conn.getProviderUserId())) {
+                    throw new RestException(409, "providerUserId mismatch", null, HttpStatus.FORBIDDEN, "Authentication mismatch");
                 }
             }
+            return conn.getUserId();
         }
 
         throw new RestException(401, "No token found in request", null, HttpStatus.FORBIDDEN, "Authentication required");
