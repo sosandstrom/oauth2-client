@@ -65,7 +65,7 @@ public class OAuth2Interceptor extends DomainInterceptor {
             
             // only verify in local database if configured
             if (verifyLocally) {
-                conn = connectionService.getByAccessToken(accessToken);
+                conn = connectionService.get(null, accessToken);
                 if (null == conn) {
                     throw new RestException(404, "No token found in realm", null, HttpStatus.FORBIDDEN, "Authentication required");
                 }

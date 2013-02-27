@@ -13,14 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author sosandstrom
  */
-public class ConnectionService extends MardaoCrudService<DConnection, Long, DConnectionDao> {
+public class ConnectionService extends MardaoCrudService<DConnection, String, DConnectionDao> {
 
     @Autowired
     public void setDConnectionDao(DConnectionDao dConnectionDao) {
         this.dao = dConnectionDao;
     }
 
-    public DConnection getByAccessToken(String accessToken) {
-        return dao.findByAccessToken(accessToken);
-    }
 }

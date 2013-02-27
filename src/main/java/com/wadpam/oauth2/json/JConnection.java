@@ -3,12 +3,10 @@ package com.wadpam.oauth2.json;
 import com.wadpam.open.json.JBaseObject;
 
 /**
- *
+ * access_token is primary key (id).
  * @author sosandstrom
  */
 public class JConnection extends JBaseObject {
-    
-    private String accessToken;
     
     private String displayName;
     
@@ -28,14 +26,6 @@ public class JConnection extends JBaseObject {
     
     private String userId;
     
-    public String getAccessToken() {
-        return accessToken;
-    }
-
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
-    }
-
     public String getDisplayName() {
         return displayName;
     }

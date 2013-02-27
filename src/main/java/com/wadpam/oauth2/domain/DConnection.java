@@ -5,20 +5,15 @@ import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import net.sf.mardao.core.domain.AbstractLongEntity;
+import net.sf.mardao.core.domain.AbstractStringEntity;
 
 /**
- *
+ * access_token is primary key
  * @author sosandstrom
  */
 @Entity
-@Table(uniqueConstraints={@UniqueConstraint(columnNames={"providerId", "providerUserId"}),
-    @UniqueConstraint(columnNames={"accessToken"}),
-    @UniqueConstraint(columnNames={"refreshToken"})})
-public class DConnection extends AbstractLongEntity {
-    
-    @Basic
-    private String accessToken;
+@Table(uniqueConstraints={@UniqueConstraint(columnNames={"refreshToken"})})
+public class DConnection extends AbstractStringEntity {
     
     /** Specify for each provider what this property contains.
      * For Salesforce, it is instance_url
@@ -54,11 +49,11 @@ public class DConnection extends AbstractLongEntity {
     private String userId;
     
     public String getAccessToken() {
-        return accessToken;
+        return getId();
     }
 
     public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
+        setId(accessToken);
     }
 
     public String getAppArg0() {

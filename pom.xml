@@ -114,6 +114,11 @@
             <artifactId>spring-social-twitter</artifactId>
             <version>${org.springframework.social.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.social</groupId>
+            <artifactId>spring-social-salesforce</artifactId>
+            <version>1.1.0.BUILD-SNAPSHOT</version>
+        </dependency>
 <!--        <dependency>
             <groupId>com.goldengekko.social</groupId>
             <artifactId>spring-social-gekko</artifactId>

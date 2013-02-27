@@ -47,10 +47,7 @@ public class OAuth2Controller {
             @PathVariable String providerId,
             @PathVariable String providerUserId) {
         
-        String userId = service.unregisterFederated(
-                providerId, providerUserId);
-        
-        return userId;
+        throw new UnsupportedOperationException("Not a server-side operation.");
     }
 
     @Autowired

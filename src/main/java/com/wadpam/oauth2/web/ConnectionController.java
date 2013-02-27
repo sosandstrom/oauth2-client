@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 @RequestMapping("{domain}/_admin/connection")
-public class ConnectionController extends CrudController<JConnection, DConnection, Long, ConnectionService> {
+public class ConnectionController extends CrudController<JConnection, DConnection, String, ConnectionService> {
 
     public ConnectionController() {
         super(JConnection.class);
@@ -26,8 +26,7 @@ public class ConnectionController extends CrudController<JConnection, DConnectio
     
     @Override
     public void convertDomain(DConnection from, JConnection to) {
-        convertLongEntity(from, to);
-        to.setAccessToken(from.getAccessToken());
+        convertStringEntity(from, to);
         to.setDisplayName(from.getDisplayName());
         to.setExpireTime(toLong(from.getExpireTime()));
         to.setImageUrl(from.getImageUrl());
@@ -41,8 +40,7 @@ public class ConnectionController extends CrudController<JConnection, DConnectio
 
     @Override
     public void convertJson(JConnection from, DConnection to) {
-        convertJLong(from, to);
-        to.setAccessToken(from.getAccessToken());
+        convertJString(from, to);
         to.setDisplayName(from.getDisplayName());
         to.setExpireTime(toDate(from.getExpireTime()));
         to.setImageUrl(from.getImageUrl());
