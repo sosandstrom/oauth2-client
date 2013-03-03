@@ -16,15 +16,15 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.version>3.1.1.RELEASE</spring.version>
         <spring.security.version>3.1.2.RELEASE</spring.security.version>
-        <org.springframework.social.version>1.0.1.RELEASE</org.springframework.social.version>
+        <org.springframework.social.version>1.1.0.M1</org.springframework.social.version>
         <downloadSources>true</downloadSources>
         <netbeans.hint.deploy.server>Tomcat</netbeans.hint.deploy.server>
         <java.version>1.6</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <itest.include>**/*ITest.java</itest.include>
-        <surefire.default.skip>true</surefire.default.skip>
-        <mardao.version>2.1.8</mardao.version>
-        <openserver.version>15-SNAPSHOT</openserver.version>
+        <mardao.version>2.2.0</mardao.version>
+        <openserver.version>16-SNAPSHOT</openserver.version>
+        <opencomponents.version>1-SNAPSHOT</opencomponents.version>
         <javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
         <docrest.version>1.19</docrest.version>
         <logging.level>ALL</logging.level>
@@ -64,9 +64,9 @@
             <version>${openserver.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.wadpam.openserver</groupId>
+            <groupId>com.wadpam.opencomponents</groupId>
             <artifactId>users</artifactId>
-            <version>${openserver.version}</version>
+            <version>${opencomponents.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -173,7 +173,7 @@
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-jdk14</artifactId>
+            <artifactId>slf4j-log4j12</artifactId>
             <version>1.6.1</version>
             <scope>test</scope>
         </dependency>
@@ -187,6 +187,12 @@
             <groupId>org.easymock</groupId>
             <artifactId>easymockclassextension</artifactId>
             <version>2.5.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring.version}</version>
             <scope>test</scope>
         </dependency>
 		
@@ -298,37 +304,6 @@
                             <goal>run</goal>
                         </goals>
                     </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.6</version>
-                <configuration>
-                    <forkMode>pertest</forkMode>
-                    <argLine>-Xms256m -Xmx512m</argLine>
-                    <testFailureIgnore>false</testFailureIgnore>
-                    <skip>${surefire.default.skip}</skip>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>surefire-test</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                        <configuration>
-                            <skip>false</skip>
-                            <excludes>
-                                <exclude>**/*ITest.java</exclude>
-                            </excludes>
-                            <systemPropertyVariables>
-                                <catalina.home>${project.basedir}/target/test</catalina.home>
-                            </systemPropertyVariables>
-                        </configuration>
-                    </execution>
-
                 </executions>
             </plugin>
 

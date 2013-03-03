@@ -87,6 +87,7 @@ public class OAuth2Service implements ConnectionFactoryLocator {
         UserProfile profile = null;
         try {
             boolean valid = verifyConnection(connection);
+            LOG.debug("verified connection {}, now fetching user profile...", valid);
             if (!valid) {
                 throw new AuthenticationFailedException(503403, "Unauthorized federated side");
             }
@@ -270,6 +271,7 @@ public class OAuth2Service implements ConnectionFactoryLocator {
         }
         else if (PROVIDER_ID_SALESFORCE.equals(providerId)) {
             SalesforceTemplate template = new SalesforceTemplate(access_token);
+            LOG.warn("get providerUserId for {}", access_token);
             org.springframework.social.salesforce.api.ChatterOperations chatOps = template.chatterOperations();
             SalesforceProfile profile = chatOps.getUserProfile();
             return profile.getId();
@@ -278,6 +280,7 @@ public class OAuth2Service implements ConnectionFactoryLocator {
     }
 
     protected boolean verifyConnection(Connection connection) {
+        LOG.warn("verify before");
         ConnectionData data = connection.createData();
         String userId = getProviderUserId(data.getAccessToken(), data.getProviderId());
         return data.getProviderUserId().equals(userId);

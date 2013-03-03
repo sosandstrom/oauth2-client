@@ -20,38 +20,44 @@ import org.springframework.http.HttpStatus;
  */
 public class OAuth2Interceptor extends DomainInterceptor {
     
-    public static final String NAME_ACCESS_TOKEN = "access_token";
-    public static final String PREFIX_OAUTH = "OAuth ";
-    
     private boolean verifyLocally = true;
     private boolean verifyRemotely = false;
     private String providerId = OAuth2Service.PROVIDER_ID_FACEBOOK;
     
     private ConnectionService connectionService;
-
-    /**
-     * @return the authenticated username
-     */
-    @Override
-    protected String doAuthenticate(HttpServletRequest request, HttpServletResponse response) {
-        String accessToken = null;
-        
-        // check Authorization: OAuth header first
-        final String authorization = request.getHeader(NAME_AUTHORIZATION);
-        if (null != authorization && authorization.startsWith(PREFIX_OAUTH)) {
-            accessToken = authorization.substring(PREFIX_OAUTH.length());
-        }
-        
-        // param is backup
-        if (null == accessToken) {
-            accessToken = request.getParameter(NAME_ACCESS_TOKEN);
-        }
-        LOG.debug("authenticating Authorization: {}, access_token={}", authorization, accessToken);
-        
-        return verifyAccessToken(accessToken);
+    
+    public OAuth2Interceptor() {
+        super();
+        setAuthenticationMechanism(AUTH_TYPE_OAUTH);
     }
 
-    protected String verifyAccessToken(String accessToken) {
+    @Override
+    protected String getRealmPassword(Object details) {
+        final DConnection conn = (DConnection) details;
+        return conn.getAccessToken();
+    }
+
+    @Override
+    protected String getRealmUsername(String clientUsername, Object details) {
+        final DConnection conn = (DConnection) details;
+        return conn.getUserId();
+    }
+
+    @Override
+    public Object loadUserDetailsByUsername(HttpServletRequest request, 
+            HttpServletResponse response, 
+            String uri, 
+            String authValue, 
+            String clientUsername) {
+        final String realmUsername = verifyAccessToken(authValue, request);
+        if (null != realmUsername && null != request) {
+            final DConnection conn = (DConnection) request.getAttribute(AUTH_PARAM_OAUTH);
+            return conn;
+        }
+        return null;
+    }
+
+    protected String verifyAccessToken(String accessToken, HttpServletRequest request) {
 
         // missing means Unauthorized
         if (null != accessToken) {
@@ -92,6 +98,10 @@ public class OAuth2Interceptor extends DomainInterceptor {
                 if (!providerUserId.equals(conn.getProviderUserId())) {
                     throw new RestException(409, "providerUserId mismatch", null, HttpStatus.FORBIDDEN, "Authentication mismatch");
                 }
+            }
+            
+            if(null != request) {
+                request.setAttribute(AUTH_PARAM_OAUTH, conn);
             }
             return conn.getUserId();
         }
