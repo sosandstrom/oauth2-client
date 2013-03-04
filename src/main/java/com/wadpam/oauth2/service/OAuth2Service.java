@@ -280,8 +280,8 @@ public class OAuth2Service implements ConnectionFactoryLocator {
             SalesforceTemplate template = (null != appArg0) ? 
                     new SalesforceTemplate(access_token, appArg0) : new SalesforceTemplate(access_token);
             LOG.warn("get providerUserId for {}", access_token);
-            org.springframework.social.salesforce.api.MeetrOperations chatOps = template.meetrOperations();
-            SalesforceProfile profile = chatOps.getUserProfile();
+            org.springframework.social.salesforce.api.BasicOperations basicOps = template.basicOperations();
+            SalesforceProfile profile = basicOps.getUserProfile();
             return profile.getId();
         }
         throw new IllegalArgumentException("No registered provider " + providerId);
