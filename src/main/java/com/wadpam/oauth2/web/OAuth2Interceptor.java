@@ -8,6 +8,7 @@ import com.wadpam.oauth2.domain.DConnection;
 import com.wadpam.oauth2.service.ConnectionService;
 import com.wadpam.oauth2.service.OAuth2Service;
 import com.wadpam.open.exceptions.RestException;
+import com.wadpam.open.security.SecurityDetailsService;
 import com.wadpam.open.web.DomainInterceptor;
 import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
@@ -18,7 +19,7 @@ import org.springframework.http.HttpStatus;
  *
  * @author sosandstrom
  */
-public class OAuth2Interceptor extends DomainInterceptor {
+public class OAuth2Interceptor extends DomainInterceptor implements SecurityDetailsService {
     
     private boolean verifyLocally = true;
     private boolean verifyRemotely = false;
@@ -29,6 +30,7 @@ public class OAuth2Interceptor extends DomainInterceptor {
     public OAuth2Interceptor() {
         super();
         setAuthenticationMechanism(AUTH_TYPE_OAUTH);
+        setSecurityDetailsService(this);
     }
 
     @Override
@@ -49,10 +51,15 @@ public class OAuth2Interceptor extends DomainInterceptor {
             String uri, 
             String authValue, 
             String clientUsername) {
-        final String realmUsername = verifyAccessToken(authValue, request);
-        if (null != realmUsername && null != request) {
-            final DConnection conn = (DConnection) request.getAttribute(AUTH_PARAM_OAUTH);
-            return conn;
+        try {
+            final String realmUsername = verifyAccessToken(authValue, request);
+            if (null != realmUsername && null != request) {
+                final DConnection conn = (DConnection) request.getAttribute(AUTH_PARAM_OAUTH);
+                return conn;
+            }
+        }
+        catch (RestException whenMissing) {
+            LOG.info("No token/user found for {}", authValue);
         }
         return null;
     }
@@ -89,7 +96,7 @@ public class OAuth2Interceptor extends DomainInterceptor {
                     throw new UnsupportedOperationException("For remote verification, local must be enabled too.");
                 }
                 
-                String providerUserId = OAuth2Service.getProviderUserId(accessToken, providerId);
+                String providerUserId = OAuth2Service.getProviderUserId(accessToken, providerId, null);
                 if (null == providerUserId) {
                     return null;
                 }

@@ -33,6 +33,7 @@ import org.springframework.social.google.connect.GoogleConnectionFactory;
 import org.springframework.social.salesforce.api.SalesforceProfile;
 import org.springframework.social.salesforce.api.impl.SalesforceTemplate;
 import org.springframework.social.salesforce.connect.SalesforceConnectionFactory;
+import org.springframework.social.salesforce.connect.SalesforceServiceProvider;
 import org.springframework.social.twitter.connect.TwitterConnectionFactory;
 import org.springframework.web.client.HttpClientErrorException;
 
@@ -70,7 +71,7 @@ public class OAuth2Service implements ConnectionFactoryLocator {
      * @param expires_in
      * @return the userId associated with the Connection, null if new Connection
      */
-    public ResponseEntity<String> registerFederated(
+    public ResponseEntity<DConnection> registerFederated(
             String access_token, 
             String providerId,
             String providerUserId,
@@ -82,11 +83,11 @@ public class OAuth2Service implements ConnectionFactoryLocator {
         Iterable<DConnection> conns = dConnectionDao.queryByProviderUserId(providerUserId);
 
         // use the connectionFactory
-        final Connection<?> connection = createConnection(access_token, secret, providerId, providerUserId);
+        final Connection<?> connection = createConnection(access_token, secret, providerId, providerUserId, appArg0);
 
         UserProfile profile = null;
         try {
-            boolean valid = verifyConnection(connection);
+            boolean valid = verifyConnection(connection, appArg0);
             LOG.debug("verified connection {}, now fetching user profile...", valid);
             if (!valid) {
                 throw new AuthenticationFailedException(503403, "Unauthorized federated side");
@@ -158,11 +159,12 @@ public class OAuth2Service implements ConnectionFactoryLocator {
         conn.setAppArg0(appArg0);
         dConnectionDao.update(conn);
         
-        return new ResponseEntity<String>(userId, 
+        return new ResponseEntity<DConnection>(conn, 
                 isNewUser ? HttpStatus.CREATED : HttpStatus.OK);
     }
     
-    protected Connection<?> createConnection(String accessToken, String secret, String providerId, String providerUserId)
+    protected Connection<?> createConnection(String accessToken, String secret, 
+            String providerId, String providerUserId, String appArg0)
             throws IllegalArgumentException {
         // load from database
         final DFactory factory = factoryService.get(null, providerId);
@@ -185,6 +187,11 @@ public class OAuth2Service implements ConnectionFactoryLocator {
             if (twitterConn != null) {
                 secret = twitterConn.getSecret();
             }
+        }
+        
+        // salesforce needs instanceUrl
+        if (PROVIDER_ID_SALESFORCE.equals(providerId) && null != appArg0) {
+            SalesforceServiceProvider.setInstanceUrl(appArg0);
         }
 
         final ConnectionData data = new ConnectionData(providerId, providerUserId, null, null, null, accessToken, secret, null,
@@ -259,7 +266,7 @@ public class OAuth2Service implements ConnectionFactoryLocator {
         return getRegistry().registeredProviderIds();
     }
     
-    public static String getProviderUserId(String access_token, String providerId) {
+    public static String getProviderUserId(String access_token, String providerId, String appArg0) {
         if (PROVIDER_ID_FACEBOOK.equals(providerId)) {
             FacebookTemplate template = new FacebookTemplate(access_token);
             org.springframework.social.facebook.api.UserOperations userOps = template.userOperations();
@@ -270,19 +277,20 @@ public class OAuth2Service implements ConnectionFactoryLocator {
             return ITestApiAdapter.ITEST_PROVIDER_USER_ID;
         }
         else if (PROVIDER_ID_SALESFORCE.equals(providerId)) {
-            SalesforceTemplate template = new SalesforceTemplate(access_token);
+            SalesforceTemplate template = (null != appArg0) ? 
+                    new SalesforceTemplate(access_token, appArg0) : new SalesforceTemplate(access_token);
             LOG.warn("get providerUserId for {}", access_token);
-            org.springframework.social.salesforce.api.ChatterOperations chatOps = template.chatterOperations();
+            org.springframework.social.salesforce.api.MeetrOperations chatOps = template.meetrOperations();
             SalesforceProfile profile = chatOps.getUserProfile();
             return profile.getId();
         }
         throw new IllegalArgumentException("No registered provider " + providerId);
     }
 
-    protected boolean verifyConnection(Connection connection) {
+    protected boolean verifyConnection(Connection connection, String appArg0) {
         LOG.warn("verify before");
         ConnectionData data = connection.createData();
-        String userId = getProviderUserId(data.getAccessToken(), data.getProviderId());
+        String userId = getProviderUserId(data.getAccessToken(), data.getProviderId(), appArg0);
         return data.getProviderUserId().equals(userId);
     }
 

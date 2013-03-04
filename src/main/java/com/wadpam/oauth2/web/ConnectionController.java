@@ -26,6 +26,10 @@ public class ConnectionController extends CrudController<JConnection, DConnectio
     
     @Override
     public void convertDomain(DConnection from, JConnection to) {
+        convertDConnection(from, to);
+    }
+    
+    public static void convertDConnection(DConnection from, JConnection to) {
         convertStringEntity(from, to);
         to.setDisplayName(from.getDisplayName());
         to.setExpireTime(toLong(from.getExpireTime()));

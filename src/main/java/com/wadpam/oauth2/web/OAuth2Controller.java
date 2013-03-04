@@ -4,6 +4,8 @@
 
 package com.wadpam.oauth2.web;
 
+import com.wadpam.oauth2.domain.DConnection;
+import com.wadpam.oauth2.json.JConnection;
 import com.wadpam.oauth2.service.OAuth2Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,20 +27,26 @@ public class OAuth2Controller {
     private OAuth2Service service;
 
     @RequestMapping(value="federated/v11", method={RequestMethod.GET, RequestMethod.POST})
-    public ResponseEntity<String> registerFederated(
+    public ResponseEntity<JConnection> registerFederated(
             @RequestParam String access_token, 
             @RequestParam String providerId,
             @RequestParam String providerUserId,
             @RequestParam(required=false) String secret,
-            @RequestParam(required=false) Integer expires_in,
+            @RequestParam(defaultValue="3600") Integer expires_in,
             @RequestParam(required=false) String appArg0
             ) {
         
-        ResponseEntity<String> res = service.registerFederated(access_token, 
+        ResponseEntity<DConnection> res = service.registerFederated(access_token, 
                 providerId, providerUserId, 
                 secret, expires_in, appArg0);
         
-        return res;
+        final JConnection body = new JConnection();
+        ConnectionController.convertDConnection(res.getBody(), body);
+        
+        // clear a few values
+        body.setId(null);
+        body.setSecret(null);
+        return new ResponseEntity<JConnection>(body, res.getStatusCode());
     }
 
     @RequestMapping(value="federated/v11/{providerId}/{providerUserId}", method={RequestMethod.DELETE})

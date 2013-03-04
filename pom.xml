@@ -23,8 +23,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <itest.include>**/*ITest.java</itest.include>
         <mardao.version>2.2.0</mardao.version>
-        <openserver.version>16-SNAPSHOT</openserver.version>
-        <opencomponents.version>1-SNAPSHOT</opencomponents.version>
+        <openserver.version>16</openserver.version>
+        <opencomponents.version>1</opencomponents.version>
         <javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
         <docrest.version>1.19</docrest.version>
         <logging.level>ALL</logging.level>
@@ -117,7 +117,7 @@
         <dependency>
             <groupId>org.springframework.social</groupId>
             <artifactId>spring-social-salesforce</artifactId>
-            <version>1.1.0.BUILD-SNAPSHOT</version>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
 <!--        <dependency>
             <groupId>com.goldengekko.social</groupId>
