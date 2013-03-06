@@ -136,7 +136,7 @@ public class OAuth2Service implements ConnectionFactoryLocator {
             isNewUser = (null == userId);
             if (isNewUser && autoCreateUser && null != oauth2UserService) {
                 userId = oauth2UserService.createUser(profile.getEmail(), profile.getFirstName(), profile.getLastName(),
-                        profile.getName(), profile.getUsername());
+                        profile.getName(), providerId, profile.getUsername());
             }
             
             conn = new DConnection();
