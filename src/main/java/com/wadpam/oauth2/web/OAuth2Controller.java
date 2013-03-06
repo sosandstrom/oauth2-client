@@ -9,6 +9,8 @@ import com.wadpam.oauth2.json.JConnection;
 import com.wadpam.oauth2.service.OAuth2Service;
 import com.wadpam.open.security.SecurityInterceptor;
 import javax.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +19,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.util.CookieGenerator;
 
 /**
@@ -27,6 +28,8 @@ import org.springframework.web.util.CookieGenerator;
 @Controller
 @RequestMapping("{domain}")
 public class OAuth2Controller {
+    
+    static final Logger LOG = LoggerFactory.getLogger(OAuth2Controller.class);
     
     private OAuth2Service service;
     
@@ -68,9 +71,6 @@ public class OAuth2Controller {
         final JConnection body = new JConnection();
         ConnectionController.convertDConnection(res.getBody(), body);
         
-        // clear a few values
-        body.setId(null);
-        body.setSecret(null);
         return new ResponseEntity<JConnection>(body, res.getStatusCode());
     }
 

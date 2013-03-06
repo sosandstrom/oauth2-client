@@ -11,9 +11,12 @@ import com.wadpam.oauth2.itest.ITestApiAdapter;
 import com.wadpam.oauth2.itest.IntegrationTestConnectionFactory;
 import com.wadpam.open.exceptions.AuthenticationFailedException;
 import com.wadpam.open.exceptions.NotFoundException;
+import com.wadpam.open.mvc.CrudListener;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Set;
+import javax.servlet.http.HttpServletRequest;
 import net.sf.mardao.core.CursorPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +53,8 @@ public class OAuth2Service implements ConnectionFactoryLocator {
     public static final String PROVIDER_ID_SALESFORCE = "salesforce";
     public static final String PROVIDER_ID_TWITTER = "twitter";
     
+    public static final int OPERATION_REGISTER_FEDERATED = 1001;
+    
     static final Logger LOG = LoggerFactory.getLogger(OAuth2Service.class);
     
     private boolean autoCreateUser = true;
@@ -61,6 +66,8 @@ public class OAuth2Service implements ConnectionFactoryLocator {
     private DConnectionDao dConnectionDao;
     
     private OAuth2UserService oauth2UserService;
+    
+    protected final ArrayList<CrudListener> listeners = new ArrayList<CrudListener>();
     
     /**
      * 
@@ -158,6 +165,9 @@ public class OAuth2Service implements ConnectionFactoryLocator {
         // update connection values
         conn.setAppArg0(appArg0);
         dConnectionDao.update(conn);
+        
+        // notify listeners
+        postService(null, null, OPERATION_REGISTER_FEDERATED, conn, userId, profile);
         
         return new ResponseEntity<DConnection>(conn, 
                 isNewUser ? HttpStatus.CREATED : HttpStatus.OK);
@@ -292,6 +302,30 @@ public class OAuth2Service implements ConnectionFactoryLocator {
         ConnectionData data = connection.createData();
         String userId = getProviderUserId(data.getAccessToken(), data.getProviderId(), appArg0);
         return data.getProviderUserId().equals(userId);
+    }
+    
+    public void addListener(CrudListener listener) {
+        listeners.add(listener);
+    }
+    
+    public void removeListener(CrudListener listener) {
+        listeners.remove(listener);
+    }
+    
+    protected void preService(HttpServletRequest request, String namespace,
+            int operation, Object json, Object domain, Serializable id) {
+        for (CrudListener l : listeners) {
+            l.preService(null, null, request, namespace, 
+                    operation, json, domain, id);
+        }
+    }
+    
+    protected void postService(HttpServletRequest request, String namespace,
+            int operation, Object json, Serializable id, Object serviceResponse) {
+        for (CrudListener l : listeners) {
+            l.postService(null, null, request, namespace, 
+                    operation, json, id, serviceResponse);
+        }
     }
 
     public void setFactoryService(FactoryService factoryService) {
