@@ -27,6 +27,7 @@ import org.springframework.web.util.CookieGenerator;
  *
  * @author sosandstrom
  */
+@RestReturn(value = JConnection.class)
 @Controller
 @RequestMapping("{domain}")
 public class OAuth2Controller {
@@ -57,7 +58,7 @@ public class OAuth2Controller {
      * @param appArg0 provider-specific. For Salesforce, this is instance_url
      * @return the JConnection, containing the user's id in this client app domain.
      */
-    @RestReturn(value = JConnection.class, code = {
+    @RestReturn(value = JConnection.class, entity=JConnection.class ,code = {
         @RestCode(code = 200, description = "The token was registered for an existing user", message = "OK"),
         @RestCode(code = 201, description = "A User was created, and the token was registered", message = "Created")
     })
