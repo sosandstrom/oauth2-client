@@ -168,7 +168,7 @@ public class OAuth2Service implements ConnectionFactoryLocator {
         dConnectionDao.update(conn);
         
         // notify listeners
-        postService(null, null, OPERATION_REGISTER_FEDERATED, conn, userId, profile);
+        postService(null, domain, OPERATION_REGISTER_FEDERATED, conn, userId, profile);
         
         return new ResponseEntity<DConnection>(conn, 
                 isNewUser ? HttpStatus.CREATED : HttpStatus.OK);
