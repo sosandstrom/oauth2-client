@@ -21,5 +21,5 @@ public interface OAuth2UserService {
      * @return the ID for the created user
      */
     String createUser(String email, String firstName, String lastName, 
-            String name, String providerId, String providerUserId);
+            String name, String providerId, String providerUserId, String domain);
 }

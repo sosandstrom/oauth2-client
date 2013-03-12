@@ -19,7 +19,7 @@ public class OAuth2OpenUserService implements OAuth2UserService {
 
     @Override
     public String createUser(String email, String firstName, String lastName, 
-            String name, String providerId, String providerUserId) {
+            String name, String providerId, String providerUserId, String domain) {
         DOpenUser user = openUserService.createDomain();
         user.setDisplayName(name);
         user.setEmail(email);

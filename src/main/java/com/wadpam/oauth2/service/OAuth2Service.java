@@ -84,7 +84,8 @@ public class OAuth2Service implements ConnectionFactoryLocator {
             String providerUserId,
             String secret,
             Integer expiresInSeconds,
-            String appArg0) {
+            String appArg0,
+            String domain) {
         
         // load connection from db async style (likely case is new token for existing user)
         Iterable<DConnection> conns = dConnectionDao.queryByProviderUserId(providerUserId);
@@ -143,7 +144,7 @@ public class OAuth2Service implements ConnectionFactoryLocator {
             isNewUser = (null == userId);
             if (isNewUser && autoCreateUser && null != oauth2UserService) {
                 userId = oauth2UserService.createUser(profile.getEmail(), profile.getFirstName(), profile.getLastName(),
-                        profile.getName(), providerId, profile.getUsername());
+                        profile.getName(), providerId, providerUserId, domain);
             }
             
             conn = new DConnection();

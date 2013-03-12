@@ -57,7 +57,8 @@ public class OAuth2Controller {
         
         ResponseEntity<DConnection> res = service.registerFederated(access_token, 
                 providerId, providerUserId, 
-                secret, expires_in, appArg0);
+                secret, expires_in, appArg0,
+                domain);
         
         // set a cookie if supported
         if (supportCookie) {
