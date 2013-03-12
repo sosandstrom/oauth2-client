@@ -4,6 +4,8 @@
 
 package com.wadpam.oauth2.web;
 
+import com.wadpam.docrest.domain.RestCode;
+import com.wadpam.docrest.domain.RestReturn;
 import com.wadpam.oauth2.domain.DConnection;
 import com.wadpam.oauth2.json.JConnection;
 import com.wadpam.oauth2.service.OAuth2Service;
@@ -43,6 +45,22 @@ public class OAuth2Controller {
         COOKIE_GENERATOR.setCookieName(SecurityInterceptor.AUTH_PARAM_OAUTH);
     }
     
+    /**
+     * Registers an access token from a separate (federated) OAuth2 Provider.
+     * @param response for adding cookie
+     * @param domain for multi-tenancy
+     * @param access_token the access token to register
+     * @param providerId id of the OAuth2 provider
+     * @param providerUserId user's id at the OAuth2 provider
+     * @param secret only used for twitter
+     * @param expires_in seconds this access token is valid (from now)
+     * @param appArg0 provider-specific. For Salesforce, this is instance_url
+     * @return the JConnection, containing the user's id in this client app domain.
+     */
+    @RestReturn(value = JConnection.class, code = {
+        @RestCode(code = 200, description = "The token was registered for an existing user", message = "OK"),
+        @RestCode(code = 201, description = "A User was created, and the token was registered", message = "Created")
+    })
     @RequestMapping(value="federated/v11", method={RequestMethod.GET, RequestMethod.POST})
     public ResponseEntity<JConnection> registerFederated(
             HttpServletResponse response,

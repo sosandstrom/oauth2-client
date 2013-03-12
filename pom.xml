@@ -419,7 +419,7 @@
                             </docletArtifact>
                             <encoding>UTF-8</encoding>
                             <javadocExecutable>${javadocExecutable}</javadocExecutable>
-                            <reportOutputDirectory>${project.basedir}/src/main/webapp/static</reportOutputDirectory>
+                            <!--<reportOutputDirectory>${project.basedir}/src/main/webapp/static</reportOutputDirectory>-->
                             <sourcepath>src/main/java</sourcepath>
                             <useStandardDocletOptions>false</useStandardDocletOptions>
                             <verbose>true</verbose>
