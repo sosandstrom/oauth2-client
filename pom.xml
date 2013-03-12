@@ -290,6 +290,7 @@
             </plugin>
 
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.7</version>
                 <executions>
@@ -419,13 +420,31 @@
                             </docletArtifact>
                             <encoding>UTF-8</encoding>
                             <javadocExecutable>${javadocExecutable}</javadocExecutable>
-                            <reportOutputDirectory>${project.basedir}/src/main</reportOutputDirectory>
+                            <!--<reportOutputDirectory>${project.basedir}/src/main</reportOutputDirectory>-->
                             <sourcepath>src/main/java</sourcepath>
                             <useStandardDocletOptions>false</useStandardDocletOptions>
                             <verbose>true</verbose>
                         </configuration>
                     </plugin>
                     
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.7</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <configuration>
+                                    <target>
+                                        <copy file="target/site/apidocs/api.md" tofile="src/main/apidocs/README.md" overwrite="true" />
+                                    </target>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
