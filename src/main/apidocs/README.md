@@ -2,7 +2,7 @@
 Contents
 ========
 1. [com.wadpam.oauth2.web.OAuth2Controller](/${rp})
-* [/{domain}](#registerFederated())
+  * [registerFederated](#registerFederated)
 
 <!-- Resource: /person ---------------------------------------------------->
 /{domain}
@@ -40,8 +40,8 @@ registerFederated()
 
 | HTTP Response Code | Message | Description |
 |--------------------|---------|-------------|
-   | 200 | OK | The token was registered for an existing user |
-   | 201 | Created | A User was created, and the token was registered |
+| 200 | OK | The token was registered for an existing user |
+| 201 | Created | A User was created, and the token was registered |
 
 **Response Type**: [com.wadpam.oauth2.json.JConnection](#com.wadpam.oauth2.json.JConnection)
 
