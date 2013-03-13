@@ -26,7 +26,7 @@
         <openserver.version>16</openserver.version>
         <opencomponents.version>1</opencomponents.version>
         <javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
-        <docrest.version>1.22-SNAPSHOT</docrest.version>
+        <docrest.version>1.22</docrest.version>
         <logging.level>ALL</logging.level>
     </properties>
 
