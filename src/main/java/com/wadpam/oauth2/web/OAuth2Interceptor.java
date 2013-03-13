@@ -10,10 +10,12 @@ import com.wadpam.oauth2.service.OAuth2Service;
 import com.wadpam.open.exceptions.RestException;
 import com.wadpam.open.security.SecurityDetailsService;
 import com.wadpam.open.web.DomainInterceptor;
+import com.wadpam.open.web.DomainNamespaceFilter;
 import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 /**
  *
@@ -21,11 +23,13 @@ import org.springframework.http.HttpStatus;
  */
 public class OAuth2Interceptor extends DomainInterceptor implements SecurityDetailsService {
     
+    private boolean autoRegister = true;
     private boolean verifyLocally = true;
     private boolean verifyRemotely = false;
     private String providerId = OAuth2Service.PROVIDER_ID_FACEBOOK;
     
     private ConnectionService connectionService;
+    private OAuth2Service oauth2Service = null;
     
     public OAuth2Interceptor() {
         super();
@@ -43,6 +47,40 @@ public class OAuth2Interceptor extends DomainInterceptor implements SecurityDeta
     protected String getRealmUsername(String clientUsername, Object details) {
         final DConnection conn = (DConnection) details;
         return conn.getUserId();
+    }
+
+    @Override
+    public String isAuthenticated(HttpServletRequest request, HttpServletResponse response, Object handler, String uri, String method, String authValue) {
+        
+        // already registered (local check)?
+        String username = super.isAuthenticated(request, response, handler, uri, method, authValue);
+        
+        // is this a different token, to be registered on-the-fly?
+        if (null == username && autoRegister && null != oauth2Service && null != request) {
+            
+            // does request contain necessary parameters?
+            String providerId = request.getParameter("providerId");
+            String providerUserId = request.getParameter("providerUserId");
+            String secret = request.getParameter("secret");
+            String expiresIn = request.getParameter("expires_in");
+            Integer expiresInSeconds = null != expiresIn ? Integer.parseInt(expiresIn) : 3600;
+            String appArg0 = request.getParameter("appArg0");
+            String domain = DomainNamespaceFilter.getDomain();
+            
+            if (null != providerId && null != providerUserId) {
+                
+                // register and verify with federated provider
+                ResponseEntity<DConnection> res = oauth2Service.registerFederated(
+                        authValue, providerId, providerUserId, secret, expiresInSeconds, appArg0, domain);
+
+                // if it looks good, try to authenticate again, to have all populated:
+                if (null != res && null != res.getBody()) {
+                    username = super.isAuthenticated(request, response, handler, uri, method, authValue);
+                }
+            }
+        }
+        
+        return username;
     }
 
     @Override
@@ -116,6 +154,10 @@ public class OAuth2Interceptor extends DomainInterceptor implements SecurityDeta
         throw new RestException(401, "No token found in request", null, HttpStatus.FORBIDDEN, "Authentication required");
     }
 
+    public void setAutoRegister(boolean autoRegister) {
+        this.autoRegister = autoRegister;
+    }
+
     public void setVerifyLocally(boolean verifyLocally) {
         this.verifyLocally = verifyLocally;
     }
@@ -130,6 +172,10 @@ public class OAuth2Interceptor extends DomainInterceptor implements SecurityDeta
 
     public void setConnectionService(ConnectionService connectionService) {
         this.connectionService = connectionService;
+    }
+
+    public void setOauth2Service(OAuth2Service oauth2Service) {
+        this.oauth2Service = oauth2Service;
     }
     
 }
