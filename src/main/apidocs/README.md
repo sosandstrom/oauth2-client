@@ -1,14 +1,15 @@
 <!-- Table of Contents ---------------------------------------------------->
 Contents
 ========
-1. [com.wadpam.oauth2.web.OAuth2Controller](/${rp})
-  * [registerFederated](#registerFederated)
+1. com.wadpam.oauth2.web.OAuth2Controller
+  * [registerFederated()](#registerfederated)
+  * [unregisterFederated()](#unregisterfederated)
 
 <!-- Resource: /person ---------------------------------------------------->
 /{domain}
 ============
 
-**Description**: 
+**Description**: Provides methods to register and unregister a federated OAuth2 access token.
 
 **Concrete class**: com.wadpam.oauth2.web.OAuth2Controller
 
@@ -27,13 +28,13 @@ registerFederated()
 
 | Where | Name | Type | Description |
 |-------|------|------|-------------|
-| path | domain | String | for multi-tenancy |
-| query | access_token | String | the access token to register |
-| query | providerId | String | id of the OAuth2 provider |
-| query | providerUserId | String | user's id at the OAuth2 provider |
-| query | secret | String | only used for twitter |
-| query | expires_in | Integer | seconds this access token is valid (from now) |
-| query | appArg0 | String | provider-specific. For Salesforce, this is instance_url |
+| path | domain | [String](#string) | for multi-tenancy |
+| query | access_token | [String](#string) | the access token to register |
+| query | providerId | [String](#string) | id of the OAuth2 provider |
+| query | providerUserId | [String](#string) | user's id at the OAuth2 provider |
+| query | secret | [String](#string) | only used for twitter |
+| query | expires_in | [Integer](#integer) | seconds this access token is valid (from now) |
+| query | appArg0 | [String](#string) | provider-specific. For Salesforce, this is instance_url |
 
 
 **Response Codes**:
@@ -46,7 +47,36 @@ registerFederated()
 **Response Type**: [com.wadpam.oauth2.json.JConnection](#com.wadpam.oauth2.json.JConnection)
 
 **Response Example**:
+{<div>&nbsp;&nbsp;&nbsp;<b>"createdBy"</b>&nbsp;:&nbsp;String,</div><div>&nbsp;&nbsp;&nbsp;<b>"createdDate"</b>&nbsp;:&nbsp;Long,</div><div>&nbsp;&nbsp;&nbsp;<b>"displayName"</b>&nbsp;:&nbsp;String,</div><div>&nbsp;&nbsp;&nbsp;<b>"expireTime"</b>&nbsp;:&nbsp;Long,</div><div>&nbsp;&nbsp;&nbsp;<b>"id"</b>&nbsp;:&nbsp;String,</div><div>&nbsp;&nbsp;&nbsp;<b>"imageUrl"</b>&nbsp;:&nbsp;String,</div><div>&nbsp;&nbsp;&nbsp;<b>"profileUrl"</b>&nbsp;:&nbsp;String,</div><div>&nbsp;&nbsp;&nbsp;<b>"providerId"</b>&nbsp;:&nbsp;String,</div><div>&nbsp;&nbsp;&nbsp;<b>"providerUserId"</b>&nbsp;:&nbsp;String,</div><div>&nbsp;&nbsp;&nbsp;<b>"refreshToken"</b>&nbsp;:&nbsp;String,</div><div>&nbsp;&nbsp;&nbsp;<b>"secret"</b>&nbsp;:&nbsp;String,</div><div>&nbsp;&nbsp;&nbsp;<b>"state"</b>&nbsp;:&nbsp;Long,</div><div>&nbsp;&nbsp;&nbsp;<b>"updatedBy"</b>&nbsp;:&nbsp;String,</div><div>&nbsp;&nbsp;&nbsp;<b>"updatedDate"</b>&nbsp;:&nbsp;Long,</div><div>&nbsp;&nbsp;&nbsp;<b>"userId"</b>&nbsp;:&nbsp;String,</div>}
+				
+<!-- Method: findByName() ---------------------------------------------------->		
 
+unregisterFederated()
+----------------
+
+**Description**: Removes the cookie for this host and path.
+
+**Implementing Class**: com.wadpam.oauth2.web.OAuth2Controller
+
+**REST path**: DELETE     /{domain}/federated/v11/{providerId}
+
+**Request parameters**:
+
+| Where | Name | Type | Description |
+|-------|------|------|-------------|
+| path | domain | [String](#string) | used to construct the cookie path |
+| path | providerId | [String](#string) | not used. |
+
+
+**Response Codes**:
+
+| HTTP Response Code | Message | Description |
+|--------------------|---------|-------------|
+| 200 | OK | Cookie will be deleted. |
+
+**Response Type**: [java.lang.Void](#java.lang.Void)
+
+**Response Example**:
 {<div>&nbsp;&nbsp;&nbsp;<b>"createdBy"</b>&nbsp;:&nbsp;String,</div><div>&nbsp;&nbsp;&nbsp;<b>"createdDate"</b>&nbsp;:&nbsp;Long,</div><div>&nbsp;&nbsp;&nbsp;<b>"displayName"</b>&nbsp;:&nbsp;String,</div><div>&nbsp;&nbsp;&nbsp;<b>"expireTime"</b>&nbsp;:&nbsp;Long,</div><div>&nbsp;&nbsp;&nbsp;<b>"id"</b>&nbsp;:&nbsp;String,</div><div>&nbsp;&nbsp;&nbsp;<b>"imageUrl"</b>&nbsp;:&nbsp;String,</div><div>&nbsp;&nbsp;&nbsp;<b>"profileUrl"</b>&nbsp;:&nbsp;String,</div><div>&nbsp;&nbsp;&nbsp;<b>"providerId"</b>&nbsp;:&nbsp;String,</div><div>&nbsp;&nbsp;&nbsp;<b>"providerUserId"</b>&nbsp;:&nbsp;String,</div><div>&nbsp;&nbsp;&nbsp;<b>"refreshToken"</b>&nbsp;:&nbsp;String,</div><div>&nbsp;&nbsp;&nbsp;<b>"secret"</b>&nbsp;:&nbsp;String,</div><div>&nbsp;&nbsp;&nbsp;<b>"state"</b>&nbsp;:&nbsp;Long,</div><div>&nbsp;&nbsp;&nbsp;<b>"updatedBy"</b>&nbsp;:&nbsp;String,</div><div>&nbsp;&nbsp;&nbsp;<b>"updatedDate"</b>&nbsp;:&nbsp;Long,</div><div>&nbsp;&nbsp;&nbsp;<b>"userId"</b>&nbsp;:&nbsp;String,</div>}
 				
 
@@ -59,23 +89,23 @@ com.wadpam.oauth2.json.JConnection
 
 | Name | Type | Description |
 |------|------|-------------|
-| displayName | <a href="api.html#java.lang.String" class="link">java.lang.String</a> | 
+| displayName | [java.lang.String](#javalangstring) | The name, as entered in the social site
  |
-| expireTime | <a href="api.html#java.lang.Long" class="link">java.lang.Long</a> | 
+| expireTime | [java.lang.Long](#javalanglong) | Timestamp when the access token will expire
  |
-| imageUrl | <a href="api.html#java.lang.String" class="link">java.lang.String</a> | 
+| imageUrl | [java.lang.String](#javalangstring) | Link to user's image at social site
  |
-| profileUrl | <a href="api.html#java.lang.String" class="link">java.lang.String</a> | 
+| profileUrl | [java.lang.String](#javalangstring) | Link to user's profile at social site
  |
-| providerId | <a href="api.html#java.lang.String" class="link">java.lang.String</a> | 
+| providerId | [java.lang.String](#javalangstring) | provider id, facebook, twitter, salesforce
  |
-| providerUserId | <a href="api.html#java.lang.String" class="link">java.lang.String</a> | 
+| providerUserId | [java.lang.String](#javalangstring) | The user's id at social site
  |
-| refreshToken | <a href="api.html#java.lang.String" class="link">java.lang.String</a> | 
+| refreshToken | [java.lang.String](#javalangstring) | Long-lived token used to refresh access_token
  |
-| secret | <a href="api.html#java.lang.String" class="link">java.lang.String</a> | 
+| secret | [java.lang.String](#javalangstring) | Used by twitter
  |
-| userId | <a href="api.html#java.lang.String" class="link">java.lang.String</a> | 
+| userId | [java.lang.String](#javalangstring) | User's id in this system
  |
 <!-- JSON object: com.wadpam.open.json.JCursorPage ---------------------------------------------------->		
 com.wadpam.open.json.JCursorPage
@@ -83,11 +113,11 @@ com.wadpam.open.json.JCursorPage
 
 | Name | Type | Description |
 |------|------|-------------|
-| cursorKey | <a href="api.html#java.lang.String" class="link">java.lang.String</a> | 
+| cursorKey | [java.lang.String](#javalangstring) | 
  |
-| items | <a href="api.html#java.util.Collection" class="link">java.util.Collection</a> | 
+| items | [java.util.Collection](#javautilcollection) | 
  |
-| pageSize | int | 
+| pageSize | [int](#int) | 
  |
 <!-- JSON object: java.lang.Long ---------------------------------------------------->		
 java.lang.Long
@@ -95,61 +125,61 @@ java.lang.Long
 
 | Name | Type | Description |
 |------|------|-------------|
-| chars | void |  |
-| long | <a href="api.html#java.lang.Long" class="link">java.lang.Long</a> |  |
-| long | <a href="api.html#java.lang.Long" class="link">java.lang.Long</a> |  |
-| long | <a href="api.html#java.lang.Long" class="link">java.lang.Long</a> |  |
+| chars | [void](#void) |  |
+| long | [java.lang.Long](#javalanglong) |  |
+| long | [java.lang.Long](#javalanglong) |  |
+| long | [java.lang.Long](#javalanglong) |  |
 <!-- JSON object: java.lang.Object ---------------------------------------------------->		
 java.lang.Object
 ------------
 
 | Name | Type | Description |
 |------|------|-------------|
-| class | java.lang.Class |  |
+| class | [java.lang.Class](#javalangclass) |  |
 <!-- JSON object: java.lang.String ---------------------------------------------------->		
 java.lang.String
 ------------
 
 | Name | Type | Description |
 |------|------|-------------|
-| empty | boolean |  |
-| chars | void |  |
-| chars | void |  |
-| bytes | void |  |
-| bytes | byte |  |
-| bytes | byte |  |
-| bytes | byte |  |
+| empty | [boolean](#boolean) |  |
+| chars | [void](#void) |  |
+| chars | [void](#void) |  |
+| bytes | [void](#void) |  |
+| bytes | [byte](#byte) |  |
+| bytes | [byte](#byte) |  |
+| bytes | [byte](#byte) |  |
 <!-- JSON object: java.net.URI ---------------------------------------------------->		
 java.net.URI
 ------------
 
 | Name | Type | Description |
 |------|------|-------------|
-| scheme | <a href="api.html#java.lang.String" class="link">java.lang.String</a> | 
+| scheme | [java.lang.String](#javalangstring) | 
  |
-| absolute | boolean |  |
-| opaque | boolean |  |
-| rawSchemeSpecificPart | <a href="api.html#java.lang.String" class="link">java.lang.String</a> |  |
-| schemeSpecificPart | <a href="api.html#java.lang.String" class="link">java.lang.String</a> | 
+| absolute | [boolean](#boolean) |  |
+| opaque | [boolean](#boolean) |  |
+| rawSchemeSpecificPart | [java.lang.String](#javalangstring) |  |
+| schemeSpecificPart | [java.lang.String](#javalangstring) | 
  |
-| rawAuthority | <a href="api.html#java.lang.String" class="link">java.lang.String</a> |  |
-| authority | <a href="api.html#java.lang.String" class="link">java.lang.String</a> | 
+| rawAuthority | [java.lang.String](#javalangstring) |  |
+| authority | [java.lang.String](#javalangstring) | 
  |
-| rawUserInfo | <a href="api.html#java.lang.String" class="link">java.lang.String</a> |  |
-| userInfo | <a href="api.html#java.lang.String" class="link">java.lang.String</a> | 
+| rawUserInfo | [java.lang.String](#javalangstring) |  |
+| userInfo | [java.lang.String](#javalangstring) | 
  |
-| host | <a href="api.html#java.lang.String" class="link">java.lang.String</a> | 
+| host | [java.lang.String](#javalangstring) | 
  |
-| port | int | 
+| port | [int](#int) | 
  |
-| rawPath | <a href="api.html#java.lang.String" class="link">java.lang.String</a> |  |
-| path | <a href="api.html#java.lang.String" class="link">java.lang.String</a> | 
+| rawPath | [java.lang.String](#javalangstring) |  |
+| path | [java.lang.String](#javalangstring) | 
  |
-| rawQuery | <a href="api.html#java.lang.String" class="link">java.lang.String</a> |  |
-| query | <a href="api.html#java.lang.String" class="link">java.lang.String</a> | 
+| rawQuery | [java.lang.String](#javalangstring) |  |
+| query | [java.lang.String](#javalangstring) | 
  |
-| rawFragment | <a href="api.html#java.lang.String" class="link">java.lang.String</a> |  |
-| fragment | <a href="api.html#java.lang.String" class="link">java.lang.String</a> | 
+| rawFragment | [java.lang.String](#javalangstring) |  |
+| fragment | [java.lang.String](#javalangstring) | 
  |
 <!-- JSON object: java.util.Collection ---------------------------------------------------->		
 java.util.Collection
@@ -157,13 +187,13 @@ java.util.Collection
 
 | Name | Type | Description |
 |------|------|-------------|
-| empty | boolean |  |
+| empty | [boolean](#boolean) |  |
 <!-- JSON object: org.springframework.http.ResponseEntity ---------------------------------------------------->		
 org.springframework.http.ResponseEntity
 ------------
 
 | Name | Type | Description |
 |------|------|-------------|
-| statusCode | org.springframework.http.HttpStatus | 
+| statusCode | [org.springframework.http.HttpStatus](#orgspringframeworkhttphttpstatus) | 
  |
 

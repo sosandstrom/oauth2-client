@@ -8,22 +8,31 @@ import com.wadpam.open.json.JBaseObject;
  */
 public class JConnection extends JBaseObject {
     
+    /** The name, as entered in the social site */
     private String displayName;
-    
+
+    /** Timestamp when the access token will expire */
     private Long expireTime;
     
+    /** Link to user's image at social site */
     private String imageUrl;
     
+    /** Link to user's profile at social site */
     private String profileUrl;
-    
+
+    /** provider id, facebook, twitter, salesforce */
     private String providerId;
 
+    /** The user's id at social site */
     private String providerUserId;
     
+    /** Long-lived token used to refresh access_token */
     private String refreshToken;
     
+    /** Used by twitter */
     private String secret;
     
+    /** User's id in this system */
     private String userId;
     
     public String getDisplayName() {

@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.util.CookieGenerator;
 
 /**
- *
+ * Provides methods to register and unregister a federated OAuth2 access token.
  * @author sosandstrom
  */
 @RestReturn(value = JConnection.class)
@@ -94,6 +94,16 @@ public class OAuth2Controller {
         return new ResponseEntity<JConnection>(body, res.getStatusCode());
     }
 
+    /**
+     * Removes the cookie for this host and path.
+     * @param response
+     * @param domain used to construct the cookie path
+     * @param providerId not used.
+     * @return 200 on everything
+     */
+    @RestReturn(value = Void.class, code = {
+        @RestCode(code = 200, description = "Cookie will be deleted.", message = "OK")
+    })
     @RequestMapping(value="federated/v11/{providerId}", method={RequestMethod.DELETE})
     public ResponseEntity unregisterFederated(
             HttpServletResponse response,
