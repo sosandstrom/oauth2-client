@@ -5,6 +5,7 @@
 package com.wadpam.oauth2.web;
 
 import com.wadpam.oauth2.domain.DConnection;
+import com.wadpam.open.exceptions.RestException;
 import com.wadpam.open.security.SecurityDetailsService;
 import com.wadpam.open.security.SecurityInterceptor;
 import com.wadpam.open.user.domain.DOpenUser;
@@ -60,9 +61,11 @@ public class OAuth2InterceptorTest extends TestCase {
 
     public void testIsAuthenticatedNoCredentials() {
         final String authValue = null;
-        String actual = instance.isAuthenticated(null, null, null, 
-                URI, "GET", authValue);
-        assertNull(actual);
+        try {
+            String actual = instance.isAuthenticated(null, null, null, 
+                    URI, "GET", authValue);
+        }
+        catch (RestException expected) {}
     }
     
     public void testIsWhitelisted() {
@@ -81,16 +84,21 @@ public class OAuth2InterceptorTest extends TestCase {
     
     public void testIsAuthenticatedNoSuchUser() {
         final String authValue = "test:test";
-        String actual = instance.isAuthenticated(null, null, null, 
-                URI, "GET", authValue);
-        assertNull("Wrong username", actual);
+        try {
+            String actual = instance.isAuthenticated(null, null, null, 
+                    URI, "GET", authValue);
+            fail("Expected 403 Forbidden (exception)");
+        }
+        catch (RestException expected) {}
     }
     
     public void testIsAuthenticatedWrongPassword() {
         final String authValue = "username:test";
+        try {
         String actual = instance.isAuthenticated(null, null, null, 
                 URI, "GET", authValue);
-        assertNull("Wrong password", actual);
+        }
+        catch (RestException expected) {}
     }
     
     public void testIsAuthenticated() {
