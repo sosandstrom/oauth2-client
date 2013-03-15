@@ -380,8 +380,8 @@
     </developers>
 
     <scm>
-        <url>https://github.com/sosandstrom/pocket-survey</url>
-        <developerConnection>scm:git:ssh://git@github.com/sosandstrom/pocket-survey.git</developerConnection>
+        <url>https://github.com/sosandstrom/oauth2-client</url>
+        <developerConnection>scm:git:ssh://git@github.com/sosandstrom/oauth2-client.git</developerConnection>
     </scm>
 
     <profiles>
