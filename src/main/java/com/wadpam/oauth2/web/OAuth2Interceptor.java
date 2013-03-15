@@ -54,7 +54,6 @@ public class OAuth2Interceptor extends DomainInterceptor implements SecurityDeta
         
         // already registered (local check)?
         String username = super.isAuthenticated(request, response, handler, uri, method, authValue);
-        LOG.debug("already registered: {}", username);
         
         // is this a different token, to be registered on-the-fly?
         if (null == username && autoRegister && null != oauth2Service && null != request) {
@@ -77,7 +76,7 @@ public class OAuth2Interceptor extends DomainInterceptor implements SecurityDeta
                 // if it looks good, try to authenticate again, to have all populated:
                 if (null != res && null != res.getBody()) {
                     username = super.isAuthenticated(request, response, handler, uri, method, authValue);
-                    LOG.debug("auto registered: {}", username);
+                    LOG.info("auto registered: {} for {}", authValue, username);
                 }
             }
         }
