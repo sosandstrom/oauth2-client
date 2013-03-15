@@ -80,6 +80,12 @@ public class OAuth2Interceptor extends DomainInterceptor implements SecurityDeta
             }
         }
         
+        // the SecurityInterceptor.preHandle will simply return false,
+        // which leads to an empty 200 response.
+        if (null == username) {
+            throw new RestException(77403, HttpStatus.FORBIDDEN, authValue);
+        }
+        
         return username;
     }
 
