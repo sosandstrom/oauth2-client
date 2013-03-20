@@ -9,6 +9,7 @@ import com.wadpam.open.exceptions.RestException;
 import com.wadpam.open.security.SecurityDetailsService;
 import com.wadpam.open.security.SecurityInterceptor;
 import com.wadpam.open.user.domain.DOpenUser;
+import com.wadpam.open.web.BasicAuthenticationInterceptor;
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Collection;
@@ -48,6 +49,11 @@ public class OAuth2InterceptorTest extends TestCase {
                     return conn;
                 }
                 return null;
+            }
+
+            @Override
+            public Collection<String> getRolesFromUserDetails(Object details) {
+                return BasicAuthenticationInterceptor.getRolesFromUserDetailsImpl(details);
             }
         });
         LOG.info("-----           setUp() {}           -----", getName());

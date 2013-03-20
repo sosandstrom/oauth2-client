@@ -40,6 +40,7 @@ public class ConnectionController extends CrudController<JConnection, DConnectio
         to.setRefreshToken(from.getRefreshToken());
         to.setSecret(from.getSecret());
         to.setUserId(from.getUserId());
+        to.setUserRoles(from.getUserRoles());
     }
 
     @Override
@@ -54,6 +55,7 @@ public class ConnectionController extends CrudController<JConnection, DConnectio
         to.setRefreshToken(from.getRefreshToken());
         to.setSecret(from.getSecret());
         to.setUserId(from.getUserId());
+        to.setUserRoles(from.getUserRoles());
     }
 
     @Autowired

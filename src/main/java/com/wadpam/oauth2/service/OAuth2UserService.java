@@ -4,11 +4,13 @@
 
 package com.wadpam.oauth2.service;
 
+import com.wadpam.open.security.SecurityDetailsService;
+
 /**
  *
  * @author sosandstrom
  */
-public interface OAuth2UserService {
+public interface OAuth2UserService extends SecurityDetailsService {
 
     /**
      * Creates a new user based on Connection details

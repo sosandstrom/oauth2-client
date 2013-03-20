@@ -48,6 +48,16 @@ public class DConnection extends AbstractStringEntity {
     @Basic
     private String userId;
     
+    /** Comma-separated String, populated by registerFederated() */
+    @Basic
+    private String userRoles;
+
+    @Override
+    public String subString() {
+        return String.format("%s, userId=%s, appArg0=%s, userRoles=%s", 
+                super.subString(), userId, appArg0, userRoles);
+    }
+
     public String getAccessToken() {
         return getId();
     }
@@ -134,6 +144,14 @@ public class DConnection extends AbstractStringEntity {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public String getUserRoles() {
+        return userRoles;
+    }
+
+    public void setUserRoles(String userRoles) {
+        this.userRoles = userRoles;
     }
 
 }

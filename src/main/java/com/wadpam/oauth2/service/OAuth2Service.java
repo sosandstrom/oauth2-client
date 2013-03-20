@@ -14,6 +14,7 @@ import com.wadpam.open.exceptions.NotFoundException;
 import com.wadpam.open.mvc.CrudListener;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
@@ -165,6 +166,13 @@ public class OAuth2Service implements ConnectionFactoryLocator {
         
         // update connection values
         conn.setAppArg0(appArg0);
+        if (null != oauth2UserService) {
+            Object user = oauth2UserService.loadUserDetailsByUsername(null, null, null, access_token, userId);
+            if (null != user) {
+                Collection<String> userRoles = oauth2UserService.getRolesFromUserDetails(user);
+                conn.setUserRoles(ConnectionService.convertRoles(userRoles));
+            }
+        }
         dConnectionDao.update(conn);
         
         // notify listeners

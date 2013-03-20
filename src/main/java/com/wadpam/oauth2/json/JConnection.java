@@ -1,6 +1,7 @@
 package com.wadpam.oauth2.json;
 
 import com.wadpam.open.json.JBaseObject;
+import java.util.Collection;
 
 /**
  * access_token is primary key (id).
@@ -34,6 +35,9 @@ public class JConnection extends JBaseObject {
     
     /** User's id in this system */
     private String userId;
+    
+    /** User's roles, comma-separated, populated by registerFederated() */
+    private String userRoles;
     
     public String getDisplayName() {
         return displayName;
@@ -105,6 +109,14 @@ public class JConnection extends JBaseObject {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public String getUserRoles() {
+        return userRoles;
+    }
+
+    public void setUserRoles(String userRoles) {
+        this.userRoles = userRoles;
     }
 
 }

@@ -11,6 +11,9 @@ import com.wadpam.open.exceptions.RestException;
 import com.wadpam.open.security.SecurityDetailsService;
 import com.wadpam.open.web.DomainInterceptor;
 import com.wadpam.open.web.DomainNamespaceFilter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -49,6 +52,19 @@ public class OAuth2Interceptor extends DomainInterceptor implements SecurityDeta
         return conn.getUserId();
     }
 
+    /**
+     * if specified details is defined, returns Details.roles[].
+     * @param details a DConnection object
+     * @return if specified details is defined, Details.roles[].
+     */
+    @Override
+    public Collection<String> getRolesFromUserDetails(Object details) {
+        final DConnection conn = (DConnection) details;
+        return null != details ?
+            ConnectionService.convertRoles(conn.getUserRoles()) :
+            Collections.EMPTY_LIST;
+    }
+    
     @Override
     public String isAuthenticated(HttpServletRequest request, HttpServletResponse response, Object handler, String uri, String method, String authValue) {
         
@@ -104,7 +120,7 @@ public class OAuth2Interceptor extends DomainInterceptor implements SecurityDeta
             }
         }
         catch (RestException whenMissing) {
-            LOG.info("No token/user found for {}", authValue);
+            LOG.info("No token/user found for {}, reason {}", authValue, whenMissing.getMessage());
         }
         return null;
     }
