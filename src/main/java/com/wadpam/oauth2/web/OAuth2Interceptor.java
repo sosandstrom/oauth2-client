@@ -11,12 +11,12 @@ import com.wadpam.open.exceptions.RestException;
 import com.wadpam.open.security.SecurityDetailsService;
 import com.wadpam.open.web.DomainInterceptor;
 import com.wadpam.open.web.DomainNamespaceFilter;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -193,6 +193,7 @@ public class OAuth2Interceptor extends DomainInterceptor implements SecurityDeta
         this.providerId = providerId;
     }
 
+    @Autowired
     public void setConnectionService(ConnectionService connectionService) {
         this.connectionService = connectionService;
     }
