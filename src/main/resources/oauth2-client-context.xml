@@ -18,7 +18,7 @@
         <property name="dFactoryDao" ref="dFactoryDao" />
     </bean>
     
-    <bean id="oauth2Service" class="com.wadpam.oauth2.service.OAuth2Service">
+    <bean id="oauth2Service" class="com.wadpam.oauth2.service.OAuth2ServiceImpl">
         <property name="dConnectionDao" ref="dConnectionDao" />
         <property name="factoryService" ref="factoryService" />
         <property name="oauth2UserService" ref="oauth2UserService" />

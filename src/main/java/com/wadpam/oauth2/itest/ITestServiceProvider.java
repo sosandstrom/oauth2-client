@@ -20,7 +20,7 @@ public class ITestServiceProvider extends AbstractOAuth2ServiceProvider<ITest> {
 
     @Override
     public ITest getApi(String accessToken) {
-        return new ITestTemplate();
+        return new ITestTemplate(accessToken);
     }
 
 }

@@ -10,9 +10,6 @@
 
     <!-- Specify hard-coded project properties here -->
     <properties>
-        <gae.version>1.7.0</gae.version>
-        <gae.application.version>lab</gae.application.version>
-        <gae.application.id>pocket-survey</gae.application.id>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.version>3.1.1.RELEASE</spring.version>
         <spring.security.version>3.1.2.RELEASE</spring.security.version>
@@ -23,7 +20,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <itest.include>**/*ITest.java</itest.include>
         <mardao.version>2.2.2</mardao.version>
-        <openserver.version>19</openserver.version>
+        <openserver.version>21-SNAPSHOT</openserver.version>
         <opencomponents.version>1</opencomponents.version>
         <javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
         <docrest.version>1.22</docrest.version>
@@ -64,6 +61,16 @@
             <version>${openserver.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.wadpam.openserver</groupId>
+            <artifactId>security</artifactId>
+            <version>${openserver.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.wadpam.openserver</groupId>
+            <artifactId>transactions</artifactId>
+            <version>${openserver.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.wadpam.opencomponents</groupId>
             <artifactId>users</artifactId>
             <version>${opencomponents.version}</version>
@@ -74,12 +81,6 @@
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
             <version>2.5</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.appengine</groupId>
-            <artifactId>appengine-api-1.0-sdk</artifactId>
-            <version>${gae.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -107,7 +108,7 @@
         <dependency>
             <groupId>org.springframework.social</groupId>
             <artifactId>spring-social-google</artifactId>
-            <version>0.0.1</version>
+            <version>1.0.0.M2</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.social</groupId>
@@ -147,25 +148,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.google.appengine</groupId>
-            <artifactId>appengine-testing</artifactId>
-            <version>${gae.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.appengine</groupId>
-            <artifactId>appengine-api-labs</artifactId>
-            <version>${gae.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.appengine</groupId>
-            <artifactId>appengine-api-stubs</artifactId>
-            <version>${gae.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.8.1</version>
@@ -195,6 +177,12 @@
             <version>${spring.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.wadpam.openserver</groupId>
+            <artifactId>test</artifactId>
+            <version>${openserver.version}</version>
+            <scope>test</scope>
+        </dependency>
 		
     </dependencies>
 
@@ -222,6 +210,9 @@
                     <source>1.6</source>
                     <target>1.6</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
+                    <excludes>
+                        <exclude>com/wadpam/oauth2/itest/exclude/*.java</exclude>
+                    </excludes>
                 </configuration>
                 <executions>
                     <!-- extra compile step of domain classes before mardao generator processing -->
@@ -287,6 +278,22 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <forkMode>pertest</forkMode>
+                    <argLine>-Xms256m -Xmx512m</argLine>
+                    <systemPropertyVariables>
+                        <catalina.home>${project.basedir}/target/test</catalina.home>
+                    </systemPropertyVariables>
+                    <excludes>
+                        <exclude>**/*ITest.java</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
 
             <plugin>
@@ -367,6 +374,20 @@
                 <enabled>true</enabled>
             </snapshots>
             <url>https://raw.github.com/sosandstrom/maven-repo/master/snapshots</url>
+        </repository>
+
+        <repository>
+            <id>org.springframework.maven.milestone</id>
+            <name>Spring Maven Milestone Repository</name>
+            <url>http://maven.springframework.org/milestone</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>spring.social.google</id>
+            <name>Spring Social Google</name>
+            <url>https://github.com/GabiAxel/maven/raw/master/</url>
         </repository>
     </repositories>
 

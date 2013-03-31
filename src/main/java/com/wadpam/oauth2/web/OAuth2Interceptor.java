@@ -7,6 +7,7 @@ package com.wadpam.oauth2.web;
 import com.wadpam.oauth2.domain.DConnection;
 import com.wadpam.oauth2.service.ConnectionService;
 import com.wadpam.oauth2.service.OAuth2Service;
+import com.wadpam.oauth2.service.OAuth2ServiceImpl;
 import com.wadpam.open.exceptions.RestException;
 import com.wadpam.open.security.SecurityDetailsService;
 import com.wadpam.open.web.DomainInterceptor;
@@ -157,7 +158,7 @@ public class OAuth2Interceptor extends DomainInterceptor implements SecurityDeta
                     throw new UnsupportedOperationException("For remote verification, local must be enabled too.");
                 }
                 
-                String providerUserId = OAuth2Service.getProviderUserId(accessToken, providerId, null);
+                String providerUserId = OAuth2ServiceImpl.getProviderUserId(accessToken, providerId, null);
                 if (null == providerUserId) {
                     return null;
                 }

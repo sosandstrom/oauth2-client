@@ -15,7 +15,6 @@ import org.springframework.social.connect.UserProfileBuilder;
  * @author sosandstrom
  */
 public class ITestApiAdapter implements ApiAdapter<ITest> {
-    public static final String ITEST_PROVIDER_USER_ID = "1000244";
 
     public ITestApiAdapter() {
     }

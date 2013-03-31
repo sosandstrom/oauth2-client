@@ -8,7 +8,6 @@ import com.wadpam.oauth2.domain.DConnection;
 import com.wadpam.open.exceptions.RestException;
 import com.wadpam.open.security.SecurityDetailsService;
 import com.wadpam.open.security.SecurityInterceptor;
-import com.wadpam.open.user.domain.DOpenUser;
 import com.wadpam.open.web.BasicAuthenticationInterceptor;
 import java.util.AbstractMap;
 import java.util.Arrays;

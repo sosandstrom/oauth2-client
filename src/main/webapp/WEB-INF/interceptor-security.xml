@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd
+                http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+    
+    <!--           Interceptors          -->
+    
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <bean id="basicInterceptor" class="com.wadpam.open.web.BasicAuthenticationInterceptor">
+                <property name="domainService" ref="domainService"/>
+                <property name="realmName" value="OAuth2-Client" />
+                <property name="whitelistedMethods" ref="basicWhitelist" />
+            </bean>
+        </mvc:interceptor>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <bean id="oauth2Interceptor" class="com.wadpam.oauth2.web.OAuth2Interceptor">
+                <property name="connectionService" ref="connectionService"/>
+                <property name="oauth2Service" ref="oauth2Service" />
+                <property name="whitelistedMethods" ref="oauth2Whitelist" />
+            </bean>
+        </mvc:interceptor>
+        
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <bean id="mardaoPrincipalInterceptor" class="com.wadpam.open.user.web.MardaoPrincipalInterceptor">
+            </bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
+    
+    <!-- Admin path -->
+    <bean id="adminJ2EE" class="java.util.AbstractMap.SimpleImmutableEntry">
+                    <constructor-arg value="\A/api/[^/]+/_admin/" />
+                    <constructor-arg><list>
+                            <value>GET</value>
+                            <value>POST</value>
+                            <value>DELETE</value>
+                    </list></constructor-arg>
+     </bean>
+     
+    <!-- Basic Authentication whitelist -->
+    <bean id="basicWhitelist" class="java.util.ArrayList">
+        <constructor-arg type="java.util.Collection" >
+            <list>
+            	<ref bean="adminJ2EE" />
+            </list>
+        </constructor-arg>
+    </bean>
+                    
+    <!-- OAuth whitelist -->
+    <bean id="oauth2Whitelist" class="java.util.ArrayList">
+        <constructor-arg type="java.util.Collection" >
+            <list>
+                <bean class="java.util.AbstractMap.SimpleImmutableEntry">
+                    <constructor-arg value="\A/api/[^/]+/federated/v" />
+                    <constructor-arg><list>
+                            <value>GET</value><value>POST</value>
+                    </list></constructor-arg>
+                </bean>
+                <bean class="java.util.AbstractMap.SimpleImmutableEntry">
+                    <constructor-arg value="\A/api/[^/]+/security" />
+                    <constructor-arg><list>
+                            <value>GET</value>
+                    </list></constructor-arg>
+                </bean>
+                <bean class="java.util.AbstractMap.SimpleImmutableEntry">
+                    <constructor-arg value="\A/api/[^/]+/security/" />
+                    <constructor-arg><list>
+                            <value>GET</value>
+                    </list></constructor-arg>
+                </bean>
+            </list>
+        </constructor-arg>
+    </bean>
+     
+    <!-- RULED methods -->
+    <bean id="ruledMethods" class="java.util.ArrayList">
+        <constructor-arg type="java.util.Collection" >
+            <list>
+                <bean class="java.util.AbstractMap.SimpleImmutableEntry">
+                	<constructor-arg value="\A[^:]+:/api/default/_admin/" />
+                	<constructor-arg><list>
+                		<value>ROLE_ANONYMOUS</value>
+                		<value>ROLE_ADMIN</value>
+                	</list>
+                	</constructor-arg>
+                </bean>
+                 
+                <bean class="java.util.AbstractMap.SimpleImmutableEntry">
+                	<constructor-arg value="\A[^:]+:/api/itest/" />
+                	<constructor-arg><list>
+                		<value>ROLE_APPLICATION</value>
+                		<!-- <value>ROLE_ITEST</value> -->
+                	</list>
+                	</constructor-arg>
+                </bean>
+                
+                <bean class="java.util.AbstractMap.SimpleImmutableEntry">
+                    <constructor-arg value="DELETE:/api/[^/]+/federated/v" />
+                    <constructor-arg><list>
+                            <value>ROLE_USER</value>
+                    </list></constructor-arg>
+                </bean>
+                <bean class="java.util.AbstractMap.SimpleImmutableEntry">
+                    <constructor-arg value="\A[^:]+:/api/[^/]+/federated/v" />
+                    <constructor-arg><list>
+                            <value>ROLE_APPLICATION</value>
+                    </list></constructor-arg>
+                </bean>
+                <bean class="java.util.AbstractMap.SimpleImmutableEntry">
+                    <constructor-arg value="\A[^:]+:/api/[^/]+/user" />
+                    <constructor-arg><list>
+                            <value>ROLE_USER</value>
+                    </list></constructor-arg>
+                </bean>
+            </list>
+        </constructor-arg>
+    </bean>
+</beans>

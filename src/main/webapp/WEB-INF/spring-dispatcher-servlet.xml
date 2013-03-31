@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd
+                http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd" 
+       xmlns:cache="http://www.springframework.org/schema/cache"
+       default-autowire="no">
+    
+    <!-- for JSON mapping without null properties -->
+    <bean id="jsonObjectMapper" class="com.wadpam.open.json.SkipNullObjectMapper" init-method="init" />
+    <mvc:annotation-driven>
+        <mvc:message-converters>
+            <bean class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
+                <property name="objectMapper" ref="jsonObjectMapper"/>  
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+    
+    <mvc:resources mapping="/**/*.html" location="/static/, classpath:/META-INF/local-offers/, classpath:/META-INF/user-service/, classpath:/META-INF/signin-service/" />
+
+    <mvc:default-servlet-handler />
+    
+    <!--<context:property-placeholder location="classpath:/application.properties" />-->
+    
+    <!-- Dao -->
+    <bean id="dOpenUserDao"
+          class="com.wadpam.open.user.dao.DOpenUserDaoBean">
+    </bean>
+    
+    <!--           Services             -->
+    
+    <import resource="classpath:/domain-service.xml" />
+    <!--<bean class="com.wadpam.open.user.config.UserConfig" />-->
+    <import resource="classpath:/oauth2-client-context.xml" />
+    <import resource="transaction-context.xml" />
+    
+    <bean id="openUserService" class="com.wadpam.open.user.service.OpenUserService">
+        <property name="dOpenUserDao" ref="dOpenUserDao" />
+    </bean>
+    
+    <bean id="oauth2UserService" class="com.wadpam.oauth2.service.OAuth2OpenUserService" >
+        <property name="openUserService" ref="openUserService" />
+    </bean>
+    <bean id="itestService" class="com.wadpam.oauth2.itest.exclude.ItestService" init-method="init">
+        <property name="domainService" ref="domainService" />
+        <property name="oauth2Service" ref="oauth2Service" />
+    </bean>
+    <bean id="integrationTestConnectionFactory" class="com.wadpam.oauth2.itest.IntegrationTestConnectionFactory" init-method="init">
+        <property name="factoryService" ref="factoryService" />
+    </bean>    
+<!--    <bean id="mockConnectionService" class="com.wadpam.oauth2.itest.exclude.MockConnectionService" />-->
+    
+    <!--           Interceptors            -->
+    <import resource="interceptor-security.xml" />
+
+    <!--           Controllers             -->
+    
+    <bean id="securityController" class="com.wadpam.oauth2.itest.exclude.SecurityController">
+        <property name="connectionService" ref="connectionService" />
+    </bean>
+
+    <!--           View stuff             -->
+    
+    <bean id="restExceptionResolver" class="com.wadpam.open.web.RestJsonExceptionResolver">
+        <property name="order" value="100" />
+    </bean>
+        
+    <bean id="htmlViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="viewClass" value="org.springframework.web.servlet.view.InternalResourceView"/>
+        <property name="prefix" value="/internal/" />
+        <property name="suffix" value="" />
+        <property name="order" value="999" />
+    </bean>
+
+</beans>
