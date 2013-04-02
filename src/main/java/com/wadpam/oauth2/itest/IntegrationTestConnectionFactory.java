@@ -6,8 +6,8 @@ package com.wadpam.oauth2.itest;
 
 import com.google.appengine.api.NamespaceManager;
 import com.wadpam.oauth2.domain.DFactory;
-import com.wadpam.oauth2.service.FactoryService;
 import com.wadpam.oauth2.service.OAuth2Service;
+import com.wadpam.open.mvc.CrudService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.social.connect.support.OAuth2ConnectionFactory;
 
@@ -17,7 +17,7 @@ import org.springframework.social.connect.support.OAuth2ConnectionFactory;
  */
 public class IntegrationTestConnectionFactory extends OAuth2ConnectionFactory<ITest> {
     
-    private FactoryService factoryService;
+    private CrudService<DFactory,String> factoryService;
 
     public IntegrationTestConnectionFactory() {
         super(OAuth2Service.PROVIDER_ID_ITEST, new ITestServiceProvider(), new ITestApiAdapter());
@@ -38,7 +38,7 @@ public class IntegrationTestConnectionFactory extends OAuth2ConnectionFactory<IT
     }
 
     @Autowired
-    public void setFactoryService(FactoryService factoryService) {
+    public void setFactoryService(CrudService factoryService) {
         this.factoryService = factoryService;
     }
     

@@ -8,6 +8,7 @@ import com.wadpam.oauth2.domain.DConnection;
 import com.wadpam.oauth2.json.JConnection;
 import com.wadpam.oauth2.service.ConnectionService;
 import com.wadpam.open.mvc.CrudController;
+import com.wadpam.open.mvc.CrudService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 @RequestMapping("{domain}/_admin/connection")
-public class ConnectionController extends CrudController<JConnection, DConnection, String, ConnectionService> {
+public class ConnectionController extends CrudController<JConnection, DConnection, String, CrudService<DConnection, String>> {
 
     public ConnectionController() {
         super(JConnection.class);
@@ -59,7 +60,7 @@ public class ConnectionController extends CrudController<JConnection, DConnectio
     }
 
     @Autowired
-    public void setConnectionService(ConnectionService connectionService) {
+    public void setConnectionService(CrudService connectionService) {
         this.service = connectionService;
     }
 }

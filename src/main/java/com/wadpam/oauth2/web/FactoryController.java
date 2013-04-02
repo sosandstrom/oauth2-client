@@ -8,6 +8,7 @@ import com.wadpam.oauth2.domain.DFactory;
 import com.wadpam.oauth2.json.JFactory;
 import com.wadpam.oauth2.service.FactoryService;
 import com.wadpam.open.mvc.CrudController;
+import com.wadpam.open.mvc.CrudService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 @RequestMapping("{domain}/_admin/factory")
-public class FactoryController extends CrudController<JFactory, DFactory, String, FactoryService> {
+public class FactoryController extends CrudController<JFactory, DFactory, String, CrudService<DFactory, String>> {
 
     public FactoryController() {
         super(JFactory.class);
@@ -41,7 +42,7 @@ public class FactoryController extends CrudController<JFactory, DFactory, String
     }
 
     @Autowired
-    public void setFactoryService(FactoryService factoryService) {
+    public void setFactoryService(CrudService factoryService) {
         this.service = factoryService;
     }
 }

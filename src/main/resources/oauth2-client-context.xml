@@ -10,7 +10,7 @@
 
     <import resource="classpath:/oauth2-client-dao.xml"/>
         
-    <bean id="connectionService" class="com.wadpam.oauth2.service.ConnectionService">
+    <bean id="connectionService" class="com.wadpam.oauth2.service.ConnectionServiceImpl">
         <property name="dConnectionDao" ref="dConnectionDao" />
     </bean>
     

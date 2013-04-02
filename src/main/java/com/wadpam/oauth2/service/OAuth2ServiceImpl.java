@@ -7,12 +7,12 @@ package com.wadpam.oauth2.service;
 import com.wadpam.oauth2.dao.DConnectionDao;
 import com.wadpam.oauth2.domain.DConnection;
 import com.wadpam.oauth2.domain.DFactory;
-import com.wadpam.oauth2.itest.ITestApiAdapter;
 import com.wadpam.oauth2.itest.ITestTemplate;
 import com.wadpam.oauth2.itest.IntegrationTestConnectionFactory;
 import com.wadpam.open.exceptions.AuthenticationFailedException;
 import com.wadpam.open.exceptions.NotFoundException;
 import com.wadpam.open.mvc.CrudListener;
+import com.wadpam.open.mvc.CrudService;
 import com.wadpam.open.transaction.Idempotent;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -29,7 +29,6 @@ import org.springframework.social.NotAuthorizedException;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionData;
 import org.springframework.social.connect.ConnectionFactory;
-import org.springframework.social.connect.ConnectionFactoryLocator;
 import org.springframework.social.connect.UserProfile;
 import org.springframework.social.connect.support.ConnectionFactoryRegistry;
 import org.springframework.social.facebook.api.FacebookProfile;
@@ -56,7 +55,7 @@ public class OAuth2ServiceImpl implements OAuth2Service {
     
     private ConnectionFactoryRegistry   registry = null;
     
-    private FactoryService factoryService;
+    private CrudService<DFactory, String> factoryService;
     
     private DConnectionDao dConnectionDao;
     
@@ -166,7 +165,7 @@ public class OAuth2ServiceImpl implements OAuth2Service {
             Object user = oauth2UserService.loadUserDetailsByUsername(null, null, null, access_token, userId);
             if (null != user) {
                 Collection<String> userRoles = oauth2UserService.getRolesFromUserDetails(user);
-                conn.setUserRoles(ConnectionService.convertRoles(userRoles));
+                conn.setUserRoles(ConnectionServiceImpl.convertRoles(userRoles));
             }
         }
         dConnectionDao.update(conn);
@@ -333,7 +332,7 @@ public class OAuth2ServiceImpl implements OAuth2Service {
         }
     }
 
-    public void setFactoryService(FactoryService factoryService) {
+    public void setFactoryService(CrudService factoryService) {
         this.factoryService = factoryService;
     }
 

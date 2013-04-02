@@ -6,14 +6,14 @@ package com.wadpam.oauth2.itest.exclude;
 
 import com.wadpam.oauth2.dao.DConnectionDao;
 import com.wadpam.oauth2.domain.DConnection;
-import com.wadpam.oauth2.service.ConnectionService;
+import com.wadpam.oauth2.service.ConnectionServiceImpl;
 import java.util.Date;
 
 /**
  *
  * @author sosandstrom
  */
-public class MockConnectionService extends ConnectionService {
+public class MockConnectionService extends ConnectionServiceImpl {
 
             @Override
             public DConnection get(String parentKeyString, String id) {

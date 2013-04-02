@@ -5,10 +5,11 @@
 package com.wadpam.oauth2.web;
 
 import com.wadpam.oauth2.domain.DConnection;
-import com.wadpam.oauth2.service.ConnectionService;
+import com.wadpam.oauth2.service.ConnectionServiceImpl;
 import com.wadpam.oauth2.service.OAuth2Service;
 import com.wadpam.oauth2.service.OAuth2ServiceImpl;
 import com.wadpam.open.exceptions.RestException;
+import com.wadpam.open.mvc.CrudService;
 import com.wadpam.open.security.SecurityDetailsService;
 import com.wadpam.open.web.DomainInterceptor;
 import com.wadpam.open.web.DomainNamespaceFilter;
@@ -32,7 +33,7 @@ public class OAuth2Interceptor extends DomainInterceptor implements SecurityDeta
     private boolean verifyRemotely = false;
     private String providerId = OAuth2Service.PROVIDER_ID_FACEBOOK;
     
-    private ConnectionService connectionService;
+    private CrudService<DConnection,String> connectionService;
     private OAuth2Service oauth2Service = null;
     
     public OAuth2Interceptor() {
@@ -62,7 +63,7 @@ public class OAuth2Interceptor extends DomainInterceptor implements SecurityDeta
     public Collection<String> getRolesFromUserDetails(Object details) {
         final DConnection conn = (DConnection) details;
         return null != details ?
-            ConnectionService.convertRoles(conn.getUserRoles()) :
+            ConnectionServiceImpl.convertRoles(conn.getUserRoles()) :
             Collections.EMPTY_LIST;
     }
     
@@ -195,7 +196,7 @@ public class OAuth2Interceptor extends DomainInterceptor implements SecurityDeta
     }
 
     @Autowired
-    public void setConnectionService(ConnectionService connectionService) {
+    public void setConnectionService(CrudService connectionService) {
         this.connectionService = connectionService;
     }
 
