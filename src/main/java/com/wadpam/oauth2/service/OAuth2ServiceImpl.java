@@ -4,27 +4,22 @@
 
 package com.wadpam.oauth2.service;
 
-import com.wadpam.oauth2.dao.DConnectionDao;
-import com.wadpam.oauth2.domain.DConnection;
-import com.wadpam.oauth2.domain.DFactory;
-import com.wadpam.oauth2.itest.ITestTemplate;
-import com.wadpam.oauth2.itest.IntegrationTestConnectionFactory;
-import com.wadpam.open.exceptions.AuthenticationFailedException;
-import com.wadpam.open.exceptions.NotFoundException;
-import com.wadpam.open.mvc.CrudListener;
-import com.wadpam.open.mvc.CrudService;
-import com.wadpam.open.transaction.Idempotent;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
+
 import javax.servlet.http.HttpServletRequest;
+
 import net.sf.mardao.core.CursorPage;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.social.NotAuthorizedException;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionData;
@@ -42,6 +37,17 @@ import org.springframework.social.salesforce.connect.SalesforceServiceProvider;
 import org.springframework.social.twitter.connect.TwitterConnectionFactory;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
+
+import com.wadpam.oauth2.dao.DConnectionDao;
+import com.wadpam.oauth2.domain.DConnection;
+import com.wadpam.oauth2.domain.DFactory;
+import com.wadpam.oauth2.itest.ITestTemplate;
+import com.wadpam.oauth2.itest.IntegrationTestConnectionFactory;
+import com.wadpam.open.exceptions.AuthenticationFailedException;
+import com.wadpam.open.exceptions.NotFoundException;
+import com.wadpam.open.mvc.CrudListener;
+import com.wadpam.open.mvc.CrudService;
+import com.wadpam.open.transaction.Idempotent;
 
 /**
  *
@@ -283,6 +289,7 @@ public class OAuth2ServiceImpl implements OAuth2Service {
     public static String getProviderUserId(String access_token, String providerId, String appArg0) {
         if (PROVIDER_ID_FACEBOOK.equals(providerId)) {
             FacebookTemplate template = new FacebookTemplate(access_token);
+            template.setRequestFactory(createRequestFactory());
             org.springframework.social.facebook.api.UserOperations userOps = template.userOperations();
             FacebookProfile profile = userOps.getUserProfile();
             return profile.getId();
@@ -299,6 +306,12 @@ public class OAuth2ServiceImpl implements OAuth2Service {
             return profile.getId();
         }
         throw new IllegalArgumentException("No registered provider " + providerId);
+    }
+    
+    private static ClientHttpRequestFactory createRequestFactory() {
+	SimpleClientHttpRequestFactory rf = new SimpleClientHttpRequestFactory();
+	rf.setReadTimeout(30000);
+	return rf;
     }
 
     protected boolean verifyConnection(Connection connection, String appArg0) {
