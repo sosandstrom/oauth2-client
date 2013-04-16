@@ -9,7 +9,13 @@ import com.wadpam.docrest.domain.RestReturn;
 import com.wadpam.oauth2.domain.DConnection;
 import com.wadpam.oauth2.json.JConnection;
 import com.wadpam.oauth2.service.OAuth2Service;
+import static com.wadpam.oauth2.service.OAuth2Service.OPERATION_REGISTER_FEDERATED;
+import com.wadpam.open.mvc.CrudListener;
+import com.wadpam.open.mvc.CrudObservable;
 import com.wadpam.open.security.SecurityInterceptor;
+import java.io.Serializable;
+import java.util.ArrayList;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +36,7 @@ import org.springframework.web.util.CookieGenerator;
 @RestReturn(value = JConnection.class)
 @Controller
 @RequestMapping("{domain}")
-public class OAuth2Controller {
+public class OAuth2Controller implements CrudObservable {
     
     static final Logger LOG = LoggerFactory.getLogger(OAuth2Controller.class);
     
@@ -40,6 +46,8 @@ public class OAuth2Controller {
     
     private boolean supportCookie = true;
 
+    protected final ArrayList<CrudListener> listeners = new ArrayList<CrudListener>();
+    
     public OAuth2Controller() {
         // set cookie name to access_token
         COOKIE_GENERATOR = new CookieGenerator();
@@ -64,6 +72,7 @@ public class OAuth2Controller {
     })
     @RequestMapping(value="federated/v11", method={RequestMethod.GET, RequestMethod.POST})
     public ResponseEntity<JConnection> registerFederated(
+            HttpServletRequest request,
             HttpServletResponse response,
             @PathVariable String domain,
             @RequestParam String access_token, 
@@ -73,6 +82,9 @@ public class OAuth2Controller {
             @RequestParam(defaultValue="3600") Integer expires_in,
             @RequestParam(required=false) String appArg0
             ) {
+        
+        // notify listeners
+        preService(request, domain, OPERATION_REGISTER_FEDERATED, providerUserId, providerId, access_token);
         
         ResponseEntity<DConnection> res = service.registerFederated(access_token, 
                 providerId, providerUserId, 
@@ -90,6 +102,10 @@ public class OAuth2Controller {
         
         final JConnection body = new JConnection();
         ConnectionController.convertDConnection(res.getBody(), body);
+        
+        // notify listeners
+        postService(request, domain, OPERATION_REGISTER_FEDERATED, body, body.getUserId(), res.getBody());
+        
         
         return new ResponseEntity<JConnection>(body, res.getStatusCode());
     }
@@ -116,6 +132,32 @@ public class OAuth2Controller {
             COOKIE_GENERATOR.removeCookie(response);
         }
         return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @Override
+    public void addListener(CrudListener listener) {
+        listeners.add(listener);
+    }
+    
+    @Override
+    public void removeListener(CrudListener listener) {
+        listeners.remove(listener);
+    }
+    
+    protected void preService(HttpServletRequest request, String namespace,
+            int operation, Object json, Object domain, Serializable id) {
+        for (CrudListener l : listeners) {
+            l.preService(null, null, request, namespace, 
+                    operation, json, domain, id);
+        }
+    }
+    
+    protected void postService(HttpServletRequest request, String namespace,
+            int operation, Object json, Serializable id, Object serviceResponse) {
+        for (CrudListener l : listeners) {
+            l.postService(null, null, request, namespace, 
+                    operation, json, id, serviceResponse);
+        }
     }
 
     @Autowired

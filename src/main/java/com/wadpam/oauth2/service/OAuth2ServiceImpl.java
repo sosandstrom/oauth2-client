@@ -12,6 +12,7 @@ import com.wadpam.oauth2.itest.IntegrationTestConnectionFactory;
 import com.wadpam.open.exceptions.AuthenticationFailedException;
 import com.wadpam.open.exceptions.NotFoundException;
 import com.wadpam.open.mvc.CrudListener;
+import com.wadpam.open.mvc.CrudObservable;
 import com.wadpam.open.mvc.CrudService;
 import com.wadpam.open.transaction.Idempotent;
 import java.io.Serializable;
@@ -47,7 +48,7 @@ import org.springframework.web.client.HttpClientErrorException;
  *
  * @author sosandstrom
  */
-public class OAuth2ServiceImpl implements OAuth2Service {
+public class OAuth2ServiceImpl implements OAuth2Service, CrudObservable {
     
     static final Logger LOG = LoggerFactory.getLogger(OAuth2ServiceImpl.class);
     
@@ -308,10 +309,12 @@ public class OAuth2ServiceImpl implements OAuth2Service {
         return data.getProviderUserId().equals(userId);
     }
     
+    @Override
     public void addListener(CrudListener listener) {
         listeners.add(listener);
     }
     
+    @Override
     public void removeListener(CrudListener listener) {
         listeners.remove(listener);
     }
