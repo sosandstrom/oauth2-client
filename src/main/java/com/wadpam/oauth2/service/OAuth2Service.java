@@ -49,4 +49,5 @@ public interface OAuth2Service extends ConnectionFactoryLocator {
     public void addListener(CrudListener listener);
     public void removeListener(CrudListener listener);
     
+    void setCustomProvider(ProviderFactory customProvider);
 }

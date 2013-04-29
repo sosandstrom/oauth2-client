@@ -64,6 +64,8 @@ public class OAuth2ServiceImpl implements OAuth2Service, CrudObservable {
     
     protected final ArrayList<CrudListener> listeners = new ArrayList<CrudListener>();
     
+    private ProviderFactory customProvider;
+    
     /**
      * 
      * @param access_token
@@ -220,12 +222,16 @@ public class OAuth2ServiceImpl implements OAuth2Service, CrudObservable {
 
     // ------------    implements ConnectionFactoryLocator --------- 
     
-    public static ConnectionFactory<?> createFromFactory(DFactory factory) {
+    public ConnectionFactory<?> createFromFactory(DFactory factory) {
         LOG.debug("creating factory for {}", factory.getId());
 
         ConnectionFactory<?> cf = null;
 
-        if (PROVIDER_ID_FACEBOOK.equals(factory.getId())) {
+        if (null != customProvider && customProvider.supports(factory.getId())) {
+            cf = customProvider.createFactory(factory.getId(), factory.getClientId(), factory.getClientSecret(),
+                    factory.getBaseUrl());
+        }
+        else if (PROVIDER_ID_FACEBOOK.equals(factory.getId())) {
             cf = new FacebookConnectionFactory(factory.getClientId(), factory.getClientSecret());
         }
         else if (PROVIDER_ID_GOOGLE.equals(factory.getId())) {
@@ -349,6 +355,10 @@ public class OAuth2ServiceImpl implements OAuth2Service, CrudObservable {
 
     public void setOauth2UserService(OAuth2UserService oauth2UserService) {
         this.oauth2UserService = oauth2UserService;
+    }
+
+    public void setCustomProvider(ProviderFactory customProvider) {
+        this.customProvider = customProvider;
     }
 
 }
