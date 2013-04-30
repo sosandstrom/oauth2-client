@@ -85,7 +85,12 @@ public class OAuth2ServiceImpl implements OAuth2Service, CrudObservable {
     
     protected void commitTransaction(TransactionStatus status) {
         if (null != transactionManager && null != status) {
-            transactionManager.commit(status);
+            if (status.isCompleted()) {
+                LOG.warn("Transaction already completed");
+            }
+            else {
+                transactionManager.commit(status);
+            }
         }
     }
     
@@ -327,8 +332,11 @@ public class OAuth2ServiceImpl implements OAuth2Service, CrudObservable {
         return getRegistry().registeredProviderIds();
     }
     
-    public static String getProviderUserId(String access_token, String providerId, String appArg0) {
-        if (PROVIDER_ID_FACEBOOK.equals(providerId)) {
+    public String getProviderUserId(String access_token, String providerId, String appArg0) {
+        if (null != customProvider && customProvider.supports(providerId)) {
+            return customProvider.getUserId(access_token);
+        }
+        else if (PROVIDER_ID_FACEBOOK.equals(providerId)) {
             FacebookTemplate template = new FacebookTemplate(access_token);
             org.springframework.social.facebook.api.UserOperations userOps = template.userOperations();
             FacebookProfile profile = userOps.getUserProfile();

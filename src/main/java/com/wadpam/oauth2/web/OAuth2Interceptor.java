@@ -159,7 +159,7 @@ public class OAuth2Interceptor extends DomainInterceptor implements SecurityDeta
                     throw new UnsupportedOperationException("For remote verification, local must be enabled too.");
                 }
                 
-                String providerUserId = OAuth2ServiceImpl.getProviderUserId(accessToken, providerId, null);
+                String providerUserId = oauth2Service.getProviderUserId(accessToken, providerId, null);
                 if (null == providerUserId) {
                     return null;
                 }
