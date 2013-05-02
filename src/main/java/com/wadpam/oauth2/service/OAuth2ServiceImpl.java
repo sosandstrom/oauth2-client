@@ -84,18 +84,13 @@ public class OAuth2ServiceImpl implements OAuth2Service, CrudObservable {
     }
     
     protected void commitTransaction(TransactionStatus status) {
-        if (null != transactionManager && null != status) {
-            if (status.isCompleted()) {
-                LOG.warn("Transaction already completed");
-            }
-            else {
-                transactionManager.commit(status);
-            }
+        if (null != transactionManager) {
+            transactionManager.commit(status);
         }
     }
     
     protected void rollbackTransaction(TransactionStatus status) {
-        if (null != transactionManager && null != status) {
+        if (null != transactionManager && !status.isCompleted()) {
             transactionManager.rollback(status);
         }
     }
@@ -120,12 +115,12 @@ public class OAuth2ServiceImpl implements OAuth2Service, CrudObservable {
             String appArg0,
             String domain) {
         
+        final ArrayList<String> expiredTokens = new ArrayList<String>();
+        // load connection from db async style (likely case is new token for existing user)
+        final Iterable<DConnection> conns = dConnectionDao.queryByProviderUserId(providerUserId);
         final TransactionStatus transactionStatus = getTransaction();
+        
         try {
-
-            // load connection from db async style (likely case is new token for existing user)
-            Iterable<DConnection> conns = dConnectionDao.queryByProviderUserId(providerUserId);
-
             // use the connectionFactory
             final Connection<?> connection = createConnection(access_token, secret, providerId, providerUserId, appArg0);
 
@@ -163,7 +158,6 @@ public class OAuth2ServiceImpl implements OAuth2Service, CrudObservable {
 
                 // find other connections for this user, discard expired
                 final Date now = new Date();
-                final ArrayList<String> expiredTokens = new ArrayList<String>();
                 for (DConnection dc : conns) {
                     if (providerId.equals(dc.getProviderId())) {
                         userId = dc.getUserId();
@@ -174,7 +168,6 @@ public class OAuth2ServiceImpl implements OAuth2Service, CrudObservable {
                         }
                     }
                 }
-                dConnectionDao.delete(null, expiredTokens);
 
                 // create user?
                 isNewUser = (null == userId);
@@ -213,15 +206,15 @@ public class OAuth2ServiceImpl implements OAuth2Service, CrudObservable {
             // notify listeners
             postService(null, domain, OPERATION_REGISTER_FEDERATED, conn, userId, profile);
 
+            commitTransaction(transactionStatus);
+            
+            dConnectionDao.delete(null, expiredTokens);
+            
             return new ResponseEntity<DConnection>(conn, 
                     isNewUser ? HttpStatus.CREATED : HttpStatus.OK);
         }
-        catch (RuntimeException rollback) {
-            rollbackTransaction(transactionStatus);
-            throw rollback;
-        }
         finally {
-            commitTransaction(transactionStatus);
+            rollbackTransaction(transactionStatus);
         }
     }
     
