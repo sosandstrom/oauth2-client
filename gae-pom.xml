@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.wadpam.oauth</groupId>
     <artifactId>oauth2-webapp</artifactId>
-    <version>1.2-SNAPSHOT</version>
+    <version>1.5-SNAPSHOT</version>
     <packaging>war</packaging>
     <name>Integration Test Webapp for OAuth2-Client</name>
 
@@ -16,7 +16,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <logging.level>FINE</logging.level>
         <spring.version>3.2.0.RELEASE</spring.version>
-        <openserver.version>21-SNAPSHOT</openserver.version>
+        <openserver.version>25</openserver.version>
         <opencomponents.version>1</opencomponents.version>
         <itest.include>**/*ITest.java</itest.include>
     </properties>

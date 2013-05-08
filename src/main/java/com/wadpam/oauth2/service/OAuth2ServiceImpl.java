@@ -115,6 +115,15 @@ public class OAuth2ServiceImpl implements OAuth2Service, CrudObservable {
             String appArg0,
             String domain) {
         
+        // providerUserId is optional, fetch it if necessary:
+        final String realProviderUserId = getProviderUserId(access_token, providerId, appArg0);
+        if (null == providerUserId) {
+            providerUserId = realProviderUserId;
+        }
+        else if (!providerUserId.equals(realProviderUserId)) {
+            throw new AuthenticationFailedException(503403, "Unauthorized federated side mismatch");
+        }
+        
         final ArrayList<String> expiredTokens = new ArrayList<String>();
         // load connection from db async style (likely case is new token for existing user)
         final Iterable<DConnection> conns = dConnectionDao.queryByProviderUserId(providerUserId);
@@ -126,12 +135,6 @@ public class OAuth2ServiceImpl implements OAuth2Service, CrudObservable {
 
             UserProfile profile = null;
             try {
-                boolean valid = verifyConnection(connection, appArg0);
-                LOG.debug("verified connection {}, now fetching user profile...", valid);
-                if (!valid) {
-                    throw new AuthenticationFailedException(503403, "Unauthorized federated side");
-                }
-
                 profile = connection.fetchUserProfile();
 
                 // it provderId from twitter skip it,
@@ -349,13 +352,6 @@ public class OAuth2ServiceImpl implements OAuth2Service, CrudObservable {
         throw new IllegalArgumentException("No registered provider " + providerId);
     }
 
-    protected boolean verifyConnection(Connection connection, String appArg0) {
-        LOG.warn("verify before");
-        ConnectionData data = connection.createData();
-        String userId = getProviderUserId(data.getAccessToken(), data.getProviderId(), appArg0);
-        return data.getProviderUserId().equals(userId);
-    }
-    
     @Override
     public void addListener(CrudListener listener) {
         listeners.add(listener);
