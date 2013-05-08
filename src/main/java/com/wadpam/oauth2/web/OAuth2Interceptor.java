@@ -85,7 +85,7 @@ public class OAuth2Interceptor extends DomainInterceptor implements SecurityDeta
             String appArg0 = request.getParameter("appArg0");
             String domain = DomainNamespaceFilter.getDomain();
             
-            if (null != providerId && null != providerUserId) {
+            if (null != providerId && null != expiresInSeconds) {
                 
                 // register and verify with federated provider
                 ResponseEntity<DConnection> res = oauth2Service.registerFederated(
