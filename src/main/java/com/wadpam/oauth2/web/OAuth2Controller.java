@@ -60,7 +60,7 @@ public class OAuth2Controller implements CrudObservable {
      * @param domain for multi-tenancy
      * @param access_token the access token to register
      * @param providerId id of the OAuth2 provider
-     * @param providerUserId user's id at the OAuth2 provider
+     * @param providerUserId user's id at the OAuth2 provider (optional since 1.5)
      * @param secret only used for twitter
      * @param expires_in seconds this access token is valid (from now)
      * @param appArg0 provider-specific. For Salesforce, this is instance_url
@@ -77,7 +77,7 @@ public class OAuth2Controller implements CrudObservable {
             @PathVariable String domain,
             @RequestParam String access_token, 
             @RequestParam String providerId,
-            @RequestParam String providerUserId,
+            @RequestParam(required=false) String providerUserId,
             @RequestParam(required=false) String secret,
             @RequestParam(defaultValue="3600") Integer expires_in,
             @RequestParam(required=false) String appArg0

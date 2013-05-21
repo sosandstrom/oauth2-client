@@ -49,4 +49,7 @@ public interface OAuth2Service extends ConnectionFactoryLocator {
     public void addListener(CrudListener listener);
     public void removeListener(CrudListener listener);
     
+    String getProviderUserId(String access_token, String providerId, String appArg0);
+    
+    void setCustomProvider(ProviderFactory customProvider);
 }

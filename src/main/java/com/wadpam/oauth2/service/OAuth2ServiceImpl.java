@@ -41,7 +41,11 @@ import org.springframework.social.salesforce.api.impl.SalesforceTemplate;
 import org.springframework.social.salesforce.connect.SalesforceConnectionFactory;
 import org.springframework.social.salesforce.connect.SalesforceServiceProvider;
 import org.springframework.social.twitter.connect.TwitterConnectionFactory;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.AbstractPlatformTransactionManager;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.web.client.HttpClientErrorException;
 
 /**
@@ -64,6 +68,33 @@ public class OAuth2ServiceImpl implements OAuth2Service, CrudObservable {
     
     protected final ArrayList<CrudListener> listeners = new ArrayList<CrudListener>();
     
+    private ProviderFactory customProvider;
+    
+    private AbstractPlatformTransactionManager transactionManager = null;
+    protected final TransactionDefinition TRANSACTION_DEFINITION = new DefaultTransactionDefinition();
+    
+    protected TransactionStatus getTransaction() {
+        if (null == transactionManager) {
+            return null;
+        }
+        
+        
+        final TransactionStatus status = transactionManager.getTransaction(TRANSACTION_DEFINITION);
+        return status;
+    }
+    
+    protected void commitTransaction(TransactionStatus status) {
+        if (null != transactionManager) {
+            transactionManager.commit(status);
+        }
+    }
+    
+    protected void rollbackTransaction(TransactionStatus status) {
+        if (null != transactionManager && !status.isCompleted()) {
+            transactionManager.rollback(status);
+        }
+    }
+    
     /**
      * 
      * @param access_token
@@ -84,98 +115,110 @@ public class OAuth2ServiceImpl implements OAuth2Service, CrudObservable {
             String appArg0,
             String domain) {
         
-        // load connection from db async style (likely case is new token for existing user)
-        Iterable<DConnection> conns = dConnectionDao.queryByProviderUserId(providerUserId);
-
-        // use the connectionFactory
-        final Connection<?> connection = createConnection(access_token, secret, providerId, providerUserId, appArg0);
-
-        UserProfile profile = null;
-        try {
-            boolean valid = verifyConnection(connection, appArg0);
-            LOG.debug("verified connection {}, now fetching user profile...", valid);
-            if (!valid) {
-                throw new AuthenticationFailedException(503403, "Unauthorized federated side");
-            }
-            
-            profile = connection.fetchUserProfile();
-            
-            // it provderId from twitter skip it,
-            // WARNING: Authentication error: Unable to respond to any of these challenges: {oauth=WWW-Authenticate: OAuth
-            // realm="https://api.twitter.com"}
-            // if (!PROVIDER_ID_TWITTER.equals(providerId) && !valid) {
-            if (null == profile) {
-                throw new IllegalArgumentException("Invalid connection");
-            }
-        } catch (NotAuthorizedException unauthorized) {
-            throw new AuthenticationFailedException(503401, "Unauthorized federated side");
-        } catch (HttpClientErrorException deletedOnServerSide) {
-            throw new NotFoundException(503404, "User deleted federated side");
+        // providerUserId is optional, fetch it if necessary:
+        final String realProviderUserId = getProviderUserId(access_token, providerId, appArg0);
+        if (null == providerUserId) {
+            providerUserId = realProviderUserId;
+        }
+        else if (!providerUserId.equals(realProviderUserId)) {
+            throw new AuthenticationFailedException(503403, "Unauthorized federated side mismatch");
         }
         
-        // load existing conn for token
-        DConnection conn = dConnectionDao.findByPrimaryKey(access_token);
-        final boolean isNewConnection = (null == conn);
-        boolean isNewUser = false;
-        String userId = null;
+        final ArrayList<String> expiredTokens = new ArrayList<String>();
+        // load connection from db async style (likely case is new token for existing user)
+        final Iterable<DConnection> conns = dConnectionDao.queryByProviderUserId(providerUserId);
+        final TransactionStatus transactionStatus = getTransaction();
         
-        // create connection?
-        if (isNewConnection) {
-            
-            // find other connections for this user, discard expired
-            final Date now = new Date();
-            final ArrayList<String> expiredTokens = new ArrayList<String>();
-            for (DConnection dc : conns) {
-                if (providerId.equals(dc.getProviderId())) {
-                    userId = dc.getUserId();
-                    
-                    // expired?
-                    if (null != dc.getExpireTime() && now.after(dc.getExpireTime())) {
-                        expiredTokens.add(dc.getId());
+        try {
+            // use the connectionFactory
+            final Connection<?> connection = createConnection(access_token, secret, providerId, providerUserId, appArg0);
+
+            UserProfile profile = null;
+            try {
+                profile = connection.fetchUserProfile();
+
+                // it provderId from twitter skip it,
+                // WARNING: Authentication error: Unable to respond to any of these challenges: {oauth=WWW-Authenticate: OAuth
+                // realm="https://api.twitter.com"}
+                // if (!PROVIDER_ID_TWITTER.equals(providerId) && !valid) {
+                if (null == profile) {
+                    throw new IllegalArgumentException("Invalid connection");
+                }
+            } catch (NotAuthorizedException unauthorized) {
+                throw new AuthenticationFailedException(503401, "Unauthorized federated side");
+            } catch (HttpClientErrorException deletedOnServerSide) {
+                throw new NotFoundException(503404, "User deleted federated side");
+            }
+
+            // load existing conn for token
+            DConnection conn = dConnectionDao.findByPrimaryKey(access_token);
+            final boolean isNewConnection = (null == conn);
+            boolean isNewUser = false;
+            String userId = null;
+
+            // create connection?
+            if (isNewConnection) {
+
+                // find other connections for this user, discard expired
+                final Date now = new Date();
+                for (DConnection dc : conns) {
+                    if (providerId.equals(dc.getProviderId())) {
+                        userId = dc.getUserId();
+
+                        // expired?
+                        if (null != dc.getExpireTime() && now.after(dc.getExpireTime())) {
+                            expiredTokens.add(dc.getId());
+                        }
                     }
                 }
+
+                // create user?
+                isNewUser = (null == userId);
+                if (isNewUser && autoCreateUser && null != oauth2UserService) {
+                    userId = oauth2UserService.createUser(profile.getEmail(), profile.getFirstName(), profile.getLastName(),
+                            profile.getName(), providerId, providerUserId, domain);
+                }
+
+                conn = new DConnection();
+                conn.setId(access_token);
+                conn.setDisplayName(profile.getName());
+                conn.setProviderId(providerId);
+                conn.setProviderUserId(providerUserId);
+                conn.setSecret(secret);
+                conn.setUserId(userId);
+                if (null != expiresInSeconds) {
+                    conn.setExpireTime(new Date(System.currentTimeMillis() + expiresInSeconds*1000L));
+                }
+                dConnectionDao.persist(conn);
             }
+            else {
+                userId = conn.getUserId();
+            }
+
+            // update connection values
+            conn.setAppArg0(appArg0);
+            if (null != oauth2UserService) {
+                Object user = oauth2UserService.loadUserDetailsByUsername(null, null, null, access_token, userId);
+                if (null != user) {
+                    Collection<String> userRoles = oauth2UserService.getRolesFromUserDetails(user);
+                    conn.setUserRoles(ConnectionServiceImpl.convertRoles(userRoles));
+                }
+            }
+            dConnectionDao.update(conn);
+
+            // notify listeners
+            postService(null, domain, OPERATION_REGISTER_FEDERATED, conn, userId, profile);
+
+            commitTransaction(transactionStatus);
+            
             dConnectionDao.delete(null, expiredTokens);
             
-            // create user?
-            isNewUser = (null == userId);
-            if (isNewUser && autoCreateUser && null != oauth2UserService) {
-                userId = oauth2UserService.createUser(profile.getEmail(), profile.getFirstName(), profile.getLastName(),
-                        profile.getName(), providerId, providerUserId, domain);
-            }
-            
-            conn = new DConnection();
-            conn.setId(access_token);
-            conn.setDisplayName(profile.getName());
-            conn.setProviderId(providerId);
-            conn.setProviderUserId(providerUserId);
-            conn.setSecret(secret);
-            conn.setUserId(userId);
-            if (null != expiresInSeconds) {
-                conn.setExpireTime(new Date(System.currentTimeMillis() + expiresInSeconds*1000L));
-            }
-            dConnectionDao.persist(conn);
+            return new ResponseEntity<DConnection>(conn, 
+                    isNewUser ? HttpStatus.CREATED : HttpStatus.OK);
         }
-        else {
-            userId = conn.getUserId();
+        finally {
+            rollbackTransaction(transactionStatus);
         }
-        
-        // update connection values
-        conn.setAppArg0(appArg0);
-        if (null != oauth2UserService) {
-            Object user = oauth2UserService.loadUserDetailsByUsername(null, null, null, access_token, userId);
-            if (null != user) {
-                Collection<String> userRoles = oauth2UserService.getRolesFromUserDetails(user);
-                conn.setUserRoles(ConnectionServiceImpl.convertRoles(userRoles));
-            }
-        }
-        dConnectionDao.update(conn);
-        
-        // notify listeners
-        postService(null, domain, OPERATION_REGISTER_FEDERATED, conn, userId, profile);
-        
-        return new ResponseEntity<DConnection>(conn, 
-                isNewUser ? HttpStatus.CREATED : HttpStatus.OK);
     }
     
     protected Connection<?> createConnection(String accessToken, String secret, 
@@ -220,12 +263,16 @@ public class OAuth2ServiceImpl implements OAuth2Service, CrudObservable {
 
     // ------------    implements ConnectionFactoryLocator --------- 
     
-    public static ConnectionFactory<?> createFromFactory(DFactory factory) {
+    public ConnectionFactory<?> createFromFactory(DFactory factory) {
         LOG.debug("creating factory for {}", factory.getId());
 
         ConnectionFactory<?> cf = null;
 
-        if (PROVIDER_ID_FACEBOOK.equals(factory.getId())) {
+        if (null != customProvider && customProvider.supports(factory.getId())) {
+            cf = customProvider.createFactory(factory.getId(), factory.getClientId(), factory.getClientSecret(),
+                    factory.getBaseUrl());
+        }
+        else if (PROVIDER_ID_FACEBOOK.equals(factory.getId())) {
             cf = new FacebookConnectionFactory(factory.getClientId(), factory.getClientSecret());
         }
         else if (PROVIDER_ID_GOOGLE.equals(factory.getId())) {
@@ -281,8 +328,11 @@ public class OAuth2ServiceImpl implements OAuth2Service, CrudObservable {
         return getRegistry().registeredProviderIds();
     }
     
-    public static String getProviderUserId(String access_token, String providerId, String appArg0) {
-        if (PROVIDER_ID_FACEBOOK.equals(providerId)) {
+    public String getProviderUserId(String access_token, String providerId, String appArg0) {
+        if (null != customProvider && customProvider.supports(providerId)) {
+            return customProvider.getUserId(access_token);
+        }
+        else if (PROVIDER_ID_FACEBOOK.equals(providerId)) {
             FacebookTemplate template = new FacebookTemplate(access_token);
             org.springframework.social.facebook.api.UserOperations userOps = template.userOperations();
             FacebookProfile profile = userOps.getUserProfile();
@@ -302,13 +352,6 @@ public class OAuth2ServiceImpl implements OAuth2Service, CrudObservable {
         throw new IllegalArgumentException("No registered provider " + providerId);
     }
 
-    protected boolean verifyConnection(Connection connection, String appArg0) {
-        LOG.warn("verify before");
-        ConnectionData data = connection.createData();
-        String userId = getProviderUserId(data.getAccessToken(), data.getProviderId(), appArg0);
-        return data.getProviderUserId().equals(userId);
-    }
-    
     @Override
     public void addListener(CrudListener listener) {
         listeners.add(listener);
@@ -349,6 +392,14 @@ public class OAuth2ServiceImpl implements OAuth2Service, CrudObservable {
 
     public void setOauth2UserService(OAuth2UserService oauth2UserService) {
         this.oauth2UserService = oauth2UserService;
+    }
+
+    public void setCustomProvider(ProviderFactory customProvider) {
+        this.customProvider = customProvider;
+    }
+
+    public void setTransactionManager(AbstractPlatformTransactionManager transactionManager) {
+        this.transactionManager = transactionManager;
     }
 
 }
