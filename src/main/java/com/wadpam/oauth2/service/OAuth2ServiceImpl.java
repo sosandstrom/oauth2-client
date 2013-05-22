@@ -197,6 +197,10 @@ public class OAuth2ServiceImpl implements OAuth2Service, CrudObservable {
                     throw new ConflictException(503410, "Existing token expired");
                 }
                 userId = conn.getUserId();
+                // check ExpiredTime is out of date then override
+                if (null != expiresInSeconds && null != conn.getExpireTime() && conn.getExpireTime().before(new Date())) {
+                    conn.setExpireTime(new Date(System.currentTimeMillis() + expiresInSeconds*1000L));
+                }
             }
 
             // update connection values
