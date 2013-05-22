@@ -10,6 +10,7 @@ import com.wadpam.oauth2.domain.DFactory;
 import com.wadpam.oauth2.itest.ITestTemplate;
 import com.wadpam.oauth2.itest.IntegrationTestConnectionFactory;
 import com.wadpam.open.exceptions.AuthenticationFailedException;
+import com.wadpam.open.exceptions.ConflictException;
 import com.wadpam.open.exceptions.NotFoundException;
 import com.wadpam.open.mvc.CrudListener;
 import com.wadpam.open.mvc.CrudObservable;
@@ -155,12 +156,12 @@ public class OAuth2ServiceImpl implements OAuth2Service, CrudObservable {
             final boolean isNewConnection = (null == conn);
             boolean isNewUser = false;
             String userId = null;
+            final Date now = new Date();
 
             // create connection?
             if (isNewConnection) {
 
                 // find other connections for this user, discard expired
-                final Date now = new Date();
                 for (DConnection dc : conns) {
                     if (providerId.equals(dc.getProviderId())) {
                         userId = dc.getUserId();
@@ -192,6 +193,9 @@ public class OAuth2ServiceImpl implements OAuth2Service, CrudObservable {
                 dConnectionDao.persist(conn);
             }
             else {
+                if (null != conn.getExpireTime() && now.after(conn.getExpireTime())) {
+                    throw new ConflictException(503410, "Existing token expired");
+                }
                 userId = conn.getUserId();
                 // check ExpiredTime is out of date then override
                 if (null != expiresInSeconds && null != conn.getExpireTime() && conn.getExpireTime().before(new Date())) {
