@@ -36,7 +36,10 @@ import org.springframework.social.connect.support.ConnectionFactoryRegistry;
 import org.springframework.social.facebook.api.FacebookProfile;
 import org.springframework.social.facebook.api.impl.FacebookTemplate;
 import org.springframework.social.facebook.connect.FacebookConnectionFactory;
+import org.springframework.social.google.api.impl.GoogleTemplate;
 import org.springframework.social.google.connect.GoogleConnectionFactory;
+import org.springframework.social.google.connect.GoogleOAuth2Template;
+import org.springframework.social.google.connect.GoogleServiceProvider;
 import org.springframework.social.salesforce.api.SalesforceProfile;
 import org.springframework.social.salesforce.api.impl.SalesforceTemplate;
 import org.springframework.social.salesforce.connect.SalesforceConnectionFactory;
@@ -348,8 +351,10 @@ public class OAuth2ServiceImpl implements OAuth2Service, CrudObservable {
         }
         else if (PROVIDER_ID_ITEST.equals(providerId)) {
             return ITestTemplate.ITEST_PROVIDER_USER_ID;
-        }
-        else if (PROVIDER_ID_SALESFORCE.equals(providerId)) {
+        } else if (PROVIDER_ID_GOOGLE.equals(providerId)) {
+            GoogleTemplate template = new GoogleTemplate(access_token);
+            return template.userOperations().getUserProfile().getId();
+        } else if (PROVIDER_ID_SALESFORCE.equals(providerId)) {
             SalesforceTemplate template = (null != appArg0) ? 
                     new SalesforceTemplate(access_token, appArg0) : new SalesforceTemplate(access_token);
             LOG.warn("get providerUserId for {}", access_token);
