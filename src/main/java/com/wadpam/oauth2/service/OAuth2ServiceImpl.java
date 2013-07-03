@@ -200,10 +200,6 @@ public class OAuth2ServiceImpl implements OAuth2Service, CrudObservable {
                     throw new ConflictException(503410, "Existing token expired");
                 }
                 userId = conn.getUserId();
-                // check ExpiredTime is out of date then override
-                if (null != expiresInSeconds && null != conn.getExpireTime() && conn.getExpireTime().before(new Date())) {
-                    conn.setExpireTime(new Date(System.currentTimeMillis() + expiresInSeconds*1000L));
-                }
             }
 
             // update connection values
@@ -351,10 +347,12 @@ public class OAuth2ServiceImpl implements OAuth2Service, CrudObservable {
         }
         else if (PROVIDER_ID_ITEST.equals(providerId)) {
             return ITestTemplate.ITEST_PROVIDER_USER_ID;
-        } else if (PROVIDER_ID_GOOGLE.equals(providerId)) {
+        }
+        else if (PROVIDER_ID_GOOGLE.equals(providerId)) {
             GoogleTemplate template = new GoogleTemplate(access_token);
             return template.userOperations().getUserProfile().getId();
-        } else if (PROVIDER_ID_SALESFORCE.equals(providerId)) {
+        }
+        else if (PROVIDER_ID_SALESFORCE.equals(providerId)) {
             SalesforceTemplate template = (null != appArg0) ? 
                     new SalesforceTemplate(access_token, appArg0) : new SalesforceTemplate(access_token);
             LOG.warn("get providerUserId for {}", access_token);
