@@ -305,7 +305,7 @@ public class OAuth2ServiceImpl implements OAuth2Service, CrudObservable {
 
         if (null == registry) {
             registry = new ConnectionFactoryRegistry();
-            final CursorPage<DFactory, String> page = factoryService.getPage(100, null);
+            final CursorPage<DFactory> page = factoryService.getPage(100, null);
             for(DFactory factory : page.getItems()) {
                 final ConnectionFactory<?> cf = createFromFactory(factory);
                 if (null != cf) {

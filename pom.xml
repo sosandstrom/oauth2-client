@@ -22,8 +22,8 @@
         <java.version>1.6</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <itest.include>**/*ITest.java</itest.include>
-        <mardao.version>2.2.2</mardao.version>
-        <openserver.version>25</openserver.version>
+        <mardao.version>2.3.3</mardao.version>
+        <openserver.version>29-SNAPSHOT</openserver.version>
         <opencomponents.version>1</opencomponents.version>
         <javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
         <docrest.version>1.22</docrest.version>

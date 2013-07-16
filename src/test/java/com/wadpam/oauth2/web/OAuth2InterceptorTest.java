@@ -4,6 +4,8 @@
 
 package com.wadpam.oauth2.web;
 
+import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
+import com.google.appengine.tools.development.testing.LocalUserServiceTestConfig;
 import com.wadpam.oauth2.domain.DConnection;
 import com.wadpam.open.exceptions.RestException;
 import com.wadpam.open.security.SecurityDetailsService;
@@ -27,6 +29,8 @@ import org.springframework.mock.web.MockHttpServletRequest;
 public class OAuth2InterceptorTest extends TestCase {
     static final String TOKEN = "a.valid.federated.token";
     static final Logger LOG = LoggerFactory.getLogger(OAuth2InterceptorTest.class);
+    final LocalServiceTestHelper helper = new LocalServiceTestHelper(
+            new LocalUserServiceTestConfig());
 
     static final String URI = "/api/domain/resource/v10";
     OAuth2Interceptor instance;
@@ -34,6 +38,7 @@ public class OAuth2InterceptorTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        helper.setUp();
         instance = new OAuth2Interceptor();
         instance.setSecurityDetailsService(new SecurityDetailsService() {
             @Override
@@ -61,6 +66,7 @@ public class OAuth2InterceptorTest extends TestCase {
     @Override
     protected void tearDown() throws Exception {
         LOG.info("+++++           tearDown() {}        +++++", getName());
+        helper.tearDown();
         super.tearDown();
     }
 
