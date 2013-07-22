@@ -9,6 +9,7 @@ import com.wadpam.oauth2.domain.DConnection;
 import com.wadpam.oauth2.domain.DFactory;
 import com.wadpam.oauth2.itest.ITestTemplate;
 import com.wadpam.oauth2.itest.IntegrationTestConnectionFactory;
+import static com.wadpam.oauth2.service.OAuth2Service.PROVIDER_ID_GAELIC;
 import com.wadpam.open.exceptions.AuthenticationFailedException;
 import com.wadpam.open.exceptions.ConflictException;
 import com.wadpam.open.exceptions.NotFoundException;
@@ -365,7 +366,8 @@ public class OAuth2ServiceImpl implements OAuth2Service, CrudObservable {
             return profile.getId();
         }
         else if (PROVIDER_ID_GAELIC.equals(providerId)) {
-            GaelicTemplate template = new GaelicTemplate(access_token, appArg0);
+            DFactory gaelicFactory = factoryService.get(null, PROVIDER_ID_GAELIC);
+            GaelicTemplate template = new GaelicTemplate(access_token, gaelicFactory.getBaseUrl());
             LOG.warn("get providerUserId for {}", access_token);
             GaelicProfile profile = template.getProfile();
             return profile.getId();
