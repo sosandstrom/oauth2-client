@@ -23,7 +23,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <itest.include>**/*ITest.java</itest.include>
         <mardao.version>2.3.3</mardao.version>
-        <openserver.version>29-SNAPSHOT</openserver.version>
+        <openserver.version>29</openserver.version>
         <opencomponents.version>1</opencomponents.version>
         <javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
         <docrest.version>1.22</docrest.version>
