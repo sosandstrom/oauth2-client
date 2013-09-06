@@ -9,6 +9,7 @@ import com.wadpam.oauth2.domain.DConnection;
 import com.wadpam.oauth2.domain.DFactory;
 import com.wadpam.oauth2.itest.ITestTemplate;
 import com.wadpam.oauth2.itest.IntegrationTestConnectionFactory;
+import static com.wadpam.oauth2.service.OAuth2Service.PROVIDER_ID_GAELIC;
 import com.wadpam.open.exceptions.AuthenticationFailedException;
 import com.wadpam.open.exceptions.ConflictException;
 import com.wadpam.open.exceptions.NotFoundException;
@@ -36,10 +37,11 @@ import org.springframework.social.connect.support.ConnectionFactoryRegistry;
 import org.springframework.social.facebook.api.FacebookProfile;
 import org.springframework.social.facebook.api.impl.FacebookTemplate;
 import org.springframework.social.facebook.connect.FacebookConnectionFactory;
+import org.springframework.social.gaelic.api.GaelicProfile;
+import org.springframework.social.gaelic.api.impl.GaelicTemplate;
+import org.springframework.social.gaelic.connect.GaelicConnectionFactory;
 import org.springframework.social.google.api.impl.GoogleTemplate;
 import org.springframework.social.google.connect.GoogleConnectionFactory;
-import org.springframework.social.google.connect.GoogleOAuth2Template;
-import org.springframework.social.google.connect.GoogleServiceProvider;
 import org.springframework.social.salesforce.api.SalesforceProfile;
 import org.springframework.social.salesforce.api.impl.SalesforceTemplate;
 import org.springframework.social.salesforce.connect.SalesforceConnectionFactory;
@@ -282,6 +284,9 @@ public class OAuth2ServiceImpl implements OAuth2Service, CrudObservable {
         else if (PROVIDER_ID_FACEBOOK.equals(factory.getId())) {
             cf = new FacebookConnectionFactory(factory.getClientId(), factory.getClientSecret());
         }
+        else if (PROVIDER_ID_GAELIC.equals(factory.getId())) {
+            cf = new GaelicConnectionFactory(factory.getBaseUrl(), factory.getClientId(), factory.getClientSecret());
+        }
         else if (PROVIDER_ID_GOOGLE.equals(factory.getId())) {
             cf = new GoogleConnectionFactory(factory.getClientId(), factory.getClientSecret());
         }
@@ -305,7 +310,7 @@ public class OAuth2ServiceImpl implements OAuth2Service, CrudObservable {
 
         if (null == registry) {
             registry = new ConnectionFactoryRegistry();
-            final CursorPage<DFactory, String> page = factoryService.getPage(100, null);
+            final CursorPage<DFactory> page = factoryService.getPage(100, null);
             for(DFactory factory : page.getItems()) {
                 final ConnectionFactory<?> cf = createFromFactory(factory);
                 if (null != cf) {
@@ -358,6 +363,13 @@ public class OAuth2ServiceImpl implements OAuth2Service, CrudObservable {
             LOG.warn("get providerUserId for {}", access_token);
             org.springframework.social.salesforce.api.BasicOperations basicOps = template.basicOperations();
             SalesforceProfile profile = basicOps.getUserProfile();
+            return profile.getId();
+        }
+        else if (PROVIDER_ID_GAELIC.equals(providerId)) {
+            DFactory gaelicFactory = factoryService.get(null, PROVIDER_ID_GAELIC);
+            GaelicTemplate template = new GaelicTemplate(access_token, gaelicFactory.getBaseUrl());
+            LOG.warn("get providerUserId for {}", access_token);
+            GaelicProfile profile = template.getProfile();
             return profile.getId();
         }
         throw new IllegalArgumentException("No registered provider " + providerId);
