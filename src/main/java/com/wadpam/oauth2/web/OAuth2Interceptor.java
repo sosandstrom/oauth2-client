@@ -4,23 +4,25 @@
 
 package com.wadpam.oauth2.web;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
 import com.wadpam.oauth2.domain.DConnection;
 import com.wadpam.oauth2.service.ConnectionServiceImpl;
 import com.wadpam.oauth2.service.OAuth2Service;
-import com.wadpam.oauth2.service.OAuth2ServiceImpl;
 import com.wadpam.open.exceptions.RestException;
 import com.wadpam.open.mvc.CrudService;
 import com.wadpam.open.security.SecurityDetailsService;
 import com.wadpam.open.web.DomainInterceptor;
 import com.wadpam.open.web.DomainNamespaceFilter;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 /**
  *
@@ -35,8 +37,14 @@ public class OAuth2Interceptor extends DomainInterceptor implements SecurityDeta
     
     private CrudService<DConnection,String> connectionService;
     private OAuth2Service oauth2Service = null;
+    private Collection<String> whiteListAccessTokens;
     
-    public OAuth2Interceptor() {
+    
+    public void setWhiteListAccessTokens(Collection<String> whiteListAccessTokens) {
+		this.whiteListAccessTokens = whiteListAccessTokens;
+	}
+
+	public OAuth2Interceptor() {
         super();
         setAuthenticationMechanism(AUTH_TYPE_OAUTH);
         setSecurityDetailsService(this);
@@ -54,6 +62,18 @@ public class OAuth2Interceptor extends DomainInterceptor implements SecurityDeta
         return conn.getUserId();
     }
 
+    private DConnection getAdminConnection(String accessToken) {
+    	DConnection conn = new DConnection();
+    	conn.setAccessToken(accessToken);
+    	conn.setDisplayName("Admin");
+    	//conn.setExpireTime(expireTime)
+    	conn.setExpireTime(new Date(System.currentTimeMillis() + Long.MAX_VALUE*1000L));
+    	conn = new DConnection();
+        conn.setProviderId("1");        
+    	conn.setId("1");
+    	conn.setUserRoles(String.format("%s,%s,%s,%s",SecurityDetailsService.ROLE_USER,SecurityDetailsService.ROLE_APPLICATION,SecurityDetailsService.ROLE_CONTAINER_ADMIN,SecurityDetailsService.ROLE_USER,"ROLE_ADMIN"));
+    	return conn;
+    }
     /**
      * if specified details is defined, returns Details.roles[].
      * @param details a DConnection object
@@ -131,13 +151,21 @@ public class OAuth2Interceptor extends DomainInterceptor implements SecurityDeta
 
         // missing means Unauthorized
         if (null != accessToken) {
-            
+        	 DConnection conn = null;
+        	//check access_token in whitelist
+        	if (whiteListAccessTokens !=null && whiteListAccessTokens.contains(accessToken)) {
+        		conn = getAdminConnection(accessToken);
+        		if(null != request) {
+                    request.setAttribute(AUTH_PARAM_OAUTH, conn);
+                }
+        		return conn.getUserId();
+        	}
             // no verification at all?
             if (!verifyLocally && !verifyRemotely) {
                 return USERNAME_ANONYMOUS;
             }
             
-            DConnection conn = null;
+           
             
             // only verify in local database if configured
             if (verifyLocally) {
