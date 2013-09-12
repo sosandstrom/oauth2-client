@@ -38,9 +38,8 @@ public class OAuth2Interceptor extends DomainInterceptor implements SecurityDeta
     
     private CrudService<DConnection,String> connectionService;
     private OAuth2Service oauth2Service = null;
-    private Map<String,String> whiteListAccessTokenRoles;
     
-	public OAuth2Interceptor() {
+    public OAuth2Interceptor() {
         super();
         setAuthenticationMechanism(AUTH_TYPE_OAUTH);
         setSecurityDetailsService(this);
@@ -56,25 +55,6 @@ public class OAuth2Interceptor extends DomainInterceptor implements SecurityDeta
     protected String getRealmUsername(String clientUsername, Object details) {
         final DConnection conn = (DConnection) details;
         return conn.getUserId();
-    }
-
-    private DConnection getWhilelistConnection(String accessToken) {
-        if (whiteListAccessTokenRoles !=null && whiteListAccessTokenRoles.containsKey(accessToken)) {
-            DConnection conn = new DConnection();
-            conn.setAccessToken(accessToken);
-            conn.setDisplayName("SystemAdmin");
-            
-            //conn.setExpireTime(expireTime)
-            conn.setExpireTime(new Date(System.currentTimeMillis() + Long.MAX_VALUE*1000L));
-            conn = new DConnection();
-            conn.setProviderId("SystemAdmin");
-            conn.setId(accessToken);
-            conn.setUserId("-1");
-            
-            conn.setUserRoles(whiteListAccessTokenRoles.get(accessToken));
-            return conn;
-        }
-        return null;
     }
     /**
      * if specified details is defined, returns Details.roles[].
@@ -151,26 +131,15 @@ public class OAuth2Interceptor extends DomainInterceptor implements SecurityDeta
 
     protected String verifyAccessToken(String accessToken, HttpServletRequest request) {
 
-        // missing means Unauthorized
+     // missing means Unauthorized
         if (null != accessToken) {
-
-             DConnection conn = null;
-            //check access_token in whitelist
-            if (whiteListAccessTokenRoles !=null && whiteListAccessTokenRoles.containsKey(accessToken)) {
-                LOG.info("===============found white list access token {} ===============", accessToken);
-                conn = getWhilelistConnection(accessToken);
-                if(null != request) {
-                    request.setAttribute(AUTH_PARAM_OAUTH, conn);
-                }
-                return conn.getUserId();
-            }
             
             // no verification at all?
             if (!verifyLocally && !verifyRemotely) {
                 return USERNAME_ANONYMOUS;
             }
             
-           
+            DConnection conn = null;
             
             // only verify in local database if configured
             if (verifyLocally) {
@@ -187,7 +156,7 @@ public class OAuth2Interceptor extends DomainInterceptor implements SecurityDeta
             }
             
             // verify remotely?
-            if (verifyRemotely) {
+            if (verifyRemotely && !OAuth2Service.PROVIDER_ID_SYSTEM.equals(providerId)) {
                 if (null == conn) {
                     throw new UnsupportedOperationException("For remote verification, local must be enabled too.");
                 }
@@ -235,10 +204,6 @@ public class OAuth2Interceptor extends DomainInterceptor implements SecurityDeta
 
     public void setOauth2Service(OAuth2Service oauth2Service) {
         this.oauth2Service = oauth2Service;
-    }
-
-    public void setWhiteListAccessTokenRoles(Map<String, String> whiteListAccessTokenRoles) {
-        this.whiteListAccessTokenRoles = whiteListAccessTokenRoles;
     }
     
 }

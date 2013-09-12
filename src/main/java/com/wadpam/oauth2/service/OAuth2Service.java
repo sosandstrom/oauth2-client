@@ -24,7 +24,7 @@ public interface OAuth2Service extends ConnectionFactoryLocator {
     public static final String PROVIDER_ID_GOOGLE = "google";
     public static final String PROVIDER_ID_SALESFORCE = "salesforce";
     public static final String PROVIDER_ID_TWITTER = "twitter";
-    
+    public static final String PROVIDER_ID_SYSTEM = "system";
     public static final int OPERATION_REGISTER_FEDERATED = 1001;
     
     /**
