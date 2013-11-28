@@ -4,23 +4,26 @@
 
 package com.wadpam.oauth2.web;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
 import com.wadpam.oauth2.domain.DConnection;
 import com.wadpam.oauth2.service.ConnectionServiceImpl;
 import com.wadpam.oauth2.service.OAuth2Service;
-import com.wadpam.oauth2.service.OAuth2ServiceImpl;
 import com.wadpam.open.exceptions.RestException;
 import com.wadpam.open.mvc.CrudService;
 import com.wadpam.open.security.SecurityDetailsService;
 import com.wadpam.open.web.DomainInterceptor;
 import com.wadpam.open.web.DomainNamespaceFilter;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 /**
  *
@@ -53,7 +56,6 @@ public class OAuth2Interceptor extends DomainInterceptor implements SecurityDeta
         final DConnection conn = (DConnection) details;
         return conn.getUserId();
     }
-
     /**
      * if specified details is defined, returns Details.roles[].
      * @param details a DConnection object
@@ -129,7 +131,7 @@ public class OAuth2Interceptor extends DomainInterceptor implements SecurityDeta
 
     protected String verifyAccessToken(String accessToken, HttpServletRequest request) {
 
-        // missing means Unauthorized
+     // missing means Unauthorized
         if (null != accessToken) {
             
             // no verification at all?
@@ -154,7 +156,7 @@ public class OAuth2Interceptor extends DomainInterceptor implements SecurityDeta
             }
             
             // verify remotely?
-            if (verifyRemotely) {
+            if (verifyRemotely && !OAuth2Service.PROVIDER_ID_SYSTEM.equals(providerId)) {
                 if (null == conn) {
                     throw new UnsupportedOperationException("For remote verification, local must be enabled too.");
                 }
